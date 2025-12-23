@@ -4,20 +4,20 @@ actual object EmailAuthProvider {
     actual val PROVIDER_ID: String = "password"
     actual val EMAIL_PASSWORD_SIGN_IN_METHOD: String = "password"
     actual val EMAIL_LINK_SIGN_IN_METHOD: String = "emailLink"
-    actual fun getCredential(email: String, password: String): AuthCredential = AuthCredential(js("{}"))
-    actual fun getCredentialWithLink(email: String, emailLink: String): AuthCredential = AuthCredential(js("{}"))
+    actual fun getCredential(email: String, password: String): AuthCredential = AuthCredential()
+    actual fun getCredentialWithLink(email: String, emailLink: String): AuthCredential = AuthCredential()
 }
 
 actual object GoogleAuthProvider {
     actual val PROVIDER_ID: String = "google.com"
     actual val GOOGLE_SIGN_IN_METHOD: String = "google.com"
-    actual fun getCredential(idToken: String?, accessToken: String?): AuthCredential = AuthCredential(js("{}"))
+    actual fun getCredential(idToken: String?, accessToken: String?): AuthCredential = AuthCredential()
 }
 
 actual object FacebookAuthProvider {
     actual val PROVIDER_ID: String = "facebook.com"
     actual val FACEBOOK_SIGN_IN_METHOD: String = "facebook.com"
-    actual fun getCredential(accessToken: String): AuthCredential = AuthCredential(js("{}"))
+    actual fun getCredential(accessToken: String): AuthCredential = AuthCredential()
 }
 
 actual class PhoneAuthProvider {
@@ -31,7 +31,9 @@ actual class PhoneAuthProvider {
     actual fun verifyPhoneNumber(options: PhoneAuthOptions) {}
 }
 
-actual class PhoneAuthCredential : AuthCredential(js("{}")) { actual val smsCode: String? get() = null }
+actual class PhoneAuthCredential : AuthCredential() { 
+    actual val smsCode: String? get() = null 
+}
 
 actual class PhoneAuthOptions(val phoneNumber: String, val callbacks: PhoneAuthCallbacks) {
     actual class Builder actual constructor(auth: FirebaseAuth) {

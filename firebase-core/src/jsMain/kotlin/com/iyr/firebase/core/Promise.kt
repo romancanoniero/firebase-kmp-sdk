@@ -16,7 +16,11 @@ suspend fun <T> Promise<T>.await(): T = suspendCancellableCoroutine { cont ->
             value
         },
         onRejected = { error ->
-            cont.resumeWithException(error.asThrowable())
+            val throwable = when (error) {
+                is Throwable -> error
+                else -> Exception(error?.toString() ?: "Unknown error")
+            }
+            cont.resumeWithException(throwable)
             null
         }
     )
@@ -25,19 +29,9 @@ suspend fun <T> Promise<T>.await(): T = suspendCancellableCoroutine { cont ->
 /**
  * Converts a dynamic JS error to a Kotlin Throwable
  */
-fun dynamic.asThrowable(): Throwable {
+fun jsErrorToThrowable(error: dynamic): Throwable {
     return when {
-        this is Throwable -> this
-        else -> Exception(this?.toString() ?: "Unknown error")
+        error is Throwable -> error
+        else -> Exception(error?.toString() ?: "Unknown error")
     }
-}
-
-/**
- * Type-safe wrapper for JS Promise
- */
-@JsName("Promise")
-external class JsPromise<T> {
-    fun then(onFulfilled: (T) -> dynamic): JsPromise<dynamic>
-    fun then(onFulfilled: (T) -> dynamic, onRejected: (dynamic) -> dynamic): JsPromise<dynamic>
-    fun catch(onRejected: (dynamic) -> dynamic): JsPromise<T>
 }

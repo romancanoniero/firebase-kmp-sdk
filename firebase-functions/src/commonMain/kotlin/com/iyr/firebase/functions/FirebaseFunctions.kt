@@ -33,7 +33,6 @@ expect class HttpsCallableOptions {
 
 expect class HttpsCallableResult {
     val data: Any?
-    fun <T> getData(clazz: Class<T>): T?
 }
 
 expect enum class TimeUnit {

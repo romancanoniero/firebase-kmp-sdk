@@ -43,8 +43,6 @@ actual class HttpsCallableOptions internal constructor() {
 
 actual class HttpsCallableResult internal constructor(private val android: AndroidResult) {
     actual val data: Any? get() = android.getData()
-    @Suppress("UNCHECKED_CAST")
-    actual fun <T> getData(clazz: Class<T>): T? = android.getData() as? T
 }
 
 actual enum class TimeUnit {

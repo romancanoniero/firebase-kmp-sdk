@@ -49,8 +49,6 @@ actual class HttpsCallableOptions {
 
 actual class HttpsCallableResult internal constructor(private val ios: FIRHTTPSCallableResult?) {
     actual val data: Any? get() = ios?.data()
-    @Suppress("UNCHECKED_CAST")
-    actual fun <T> getData(clazz: Class<T>): T? = ios?.data() as? T
 }
 
 actual enum class TimeUnit {

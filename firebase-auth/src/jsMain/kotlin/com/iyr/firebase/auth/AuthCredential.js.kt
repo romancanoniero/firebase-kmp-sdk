@@ -1,17 +1,17 @@
 package com.iyr.firebase.auth
 
-actual open class AuthCredential internal constructor(val js: dynamic) {
-    actual val provider: String get() = js.providerId as String
-    actual val signInMethod: String get() = js.signInMethod as String
+actual open class AuthCredential {
+    actual val provider: String get() = ""
+    actual val signInMethod: String get() = ""
 }
 
-actual class AuthResult internal constructor(val js: dynamic) {
-    actual val user: FirebaseUser? get() = js.user?.let { FirebaseUser(it) }
+actual class AuthResult {
+    actual val user: FirebaseUser? get() = null
     actual val additionalUserInfo: AdditionalUserInfo? get() = null
     actual val credential: AuthCredential? get() = null
 }
 
-actual class AdditionalUserInfo internal constructor(val js: dynamic) {
+actual class AdditionalUserInfo {
     actual val providerId: String? get() = null
     actual val username: String? get() = null
     actual val profile: Map<String, Any>? get() = null
@@ -32,4 +32,6 @@ actual class ActionCodeResult {
     }
 }
 
-actual class SignInMethodQueryResult { actual val signInMethods: List<String> get() = emptyList() }
+actual class SignInMethodQueryResult { 
+    actual val signInMethods: List<String> get() = emptyList() 
+}

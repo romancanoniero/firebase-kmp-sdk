@@ -1,6 +1,3 @@
-@file:JsModule("firebase/app")
-@file:JsNonModule
-
 package com.iyr.firebase.core
 
 import kotlin.js.Json
@@ -12,12 +9,16 @@ import kotlin.js.Json
  */
 
 // External declarations for Firebase JS SDK
-external fun initializeApp(options: Json): dynamic
-external fun initializeApp(options: Json, name: String): dynamic
-external fun getApp(): dynamic
-external fun getApp(name: String): dynamic
-external fun getApps(): Array<dynamic>
-external fun deleteApp(app: dynamic): dynamic
+@JsModule("firebase/app")
+@JsNonModule
+external object FirebaseJS {
+    fun initializeApp(options: dynamic): dynamic
+    fun initializeApp(options: dynamic, name: String): dynamic
+    fun getApp(): dynamic
+    fun getApp(name: String): dynamic
+    fun getApps(): Array<dynamic>
+    fun deleteApp(app: dynamic): dynamic
+}
 
 actual class FirebaseApp internal constructor(
     internal val js: dynamic
@@ -26,11 +27,11 @@ actual class FirebaseApp internal constructor(
     actual companion object {
         
         actual fun getInstance(): FirebaseApp {
-            return FirebaseApp(getApp())
+            return FirebaseApp(FirebaseJS.getApp())
         }
         
         actual fun getInstance(name: String): FirebaseApp {
-            return FirebaseApp(getApp(name))
+            return FirebaseApp(FirebaseJS.getApp(name))
         }
         
         actual fun initializeApp(): FirebaseApp {
@@ -48,7 +49,7 @@ actual class FirebaseApp internal constructor(
             options.storageBucket?.let { config.storageBucket = it }
             options.gcmSenderId?.let { config.messagingSenderId = it }
             
-            val app = initializeApp(config.unsafeCast<Json>())
+            val app = FirebaseJS.initializeApp(config)
             return FirebaseApp(app)
         }
         
@@ -61,12 +62,12 @@ actual class FirebaseApp internal constructor(
             options.storageBucket?.let { config.storageBucket = it }
             options.gcmSenderId?.let { config.messagingSenderId = it }
             
-            val app = initializeApp(config.unsafeCast<Json>(), name)
+            val app = FirebaseJS.initializeApp(config, name)
             return FirebaseApp(app)
         }
         
         actual fun getApps(): List<FirebaseApp> {
-            return getApps().map { FirebaseApp(it) }
+            return FirebaseJS.getApps().map { FirebaseApp(it) }
         }
     }
     
@@ -85,7 +86,7 @@ actual class FirebaseApp internal constructor(
     }
     
     actual fun delete() {
-        deleteApp(js)
+        FirebaseJS.deleteApp(js)
     }
     
     actual fun isDataCollectionDefaultEnabled(): Boolean = true
@@ -94,4 +95,3 @@ actual class FirebaseApp internal constructor(
         // No-op en JS - se maneja diferente
     }
 }
-
