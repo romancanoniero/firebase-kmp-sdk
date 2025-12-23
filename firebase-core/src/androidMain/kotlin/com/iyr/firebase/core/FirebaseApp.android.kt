@@ -10,7 +10,7 @@ import android.content.Context
  * @see com.google.firebase.FirebaseApp
  */
 actual class FirebaseApp internal constructor(
-    internal val android: com.google.firebase.FirebaseApp
+    val android: com.google.firebase.FirebaseApp
 ) {
     
     actual companion object {

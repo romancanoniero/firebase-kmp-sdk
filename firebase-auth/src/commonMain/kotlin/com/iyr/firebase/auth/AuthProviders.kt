@@ -74,7 +74,8 @@ expect interface PhoneAuthCallbacks {
 
 expect class ForceResendingToken
 
-expect class FirebaseAuthException : Exception {
+expect class FirebaseAuthException(message: String, errorCode: String) : Exception {
     val errorCode: String
+    override val message: String
 }
 
