@@ -3,10 +3,7 @@ plugins {
     alias(libs.plugins.android.library)
 }
 
-val enableIos = providers.gradleProperty("firebase.kmp.enableIos").orNull == "true"
-
 kotlin {
-    // Suprimir warning de expect/actual classes en Beta
     targets.all {
         compilations.all {
             compilerOptions.configure {
