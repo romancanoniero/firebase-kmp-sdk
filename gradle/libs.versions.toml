@@ -11,8 +11,8 @@ android-targetSdk = "34"
 # Coroutines
 coroutines = "1.9.0"
 
-# Firebase Android
-firebase-bom = "33.7.0"
+# Firebase Android - versiones explícitas (de BOM 33.7.0)
+firebase = "33.7.0"
 
 # Publishing
 vanniktechMavenPublish = "0.34.0"
@@ -29,18 +29,17 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 
-# Firebase Android BOM
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
-firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
-firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx" }
-firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
-firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx" }
-firebase-functions-ktx = { module = "com.google.firebase:firebase-functions-ktx" }
-firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx" }
-firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
-firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
-firebase-config-ktx = { module = "com.google.firebase:firebase-config-ktx" }
-firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx" }
+# Firebase Android - con versiones explícitas
+firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx", version = "21.0.0" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version = "23.1.0" }
+firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx", version = "21.0.0" }
+firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx", version = "25.1.1" }
+firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx", version = "21.0.1" }
+firebase-functions-ktx = { module = "com.google.firebase:firebase-functions-ktx", version = "21.1.0" }
+firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx", version = "24.1.0" }
+firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx", version = "22.1.2" }
+firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx", version = "19.3.0" }
+firebase-config-ktx = { module = "com.google.firebase:firebase-config-ktx", version = "22.0.1" }
 
 # KotlinX utilities
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
@@ -48,7 +47,6 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechMavenPublish" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

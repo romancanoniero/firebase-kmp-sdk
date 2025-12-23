@@ -25,8 +25,16 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
         }
         androidMain.dependencies {
-            implementation(platform(libs.firebase.bom))
             implementation(libs.firebase.firestore.ktx)
+        }
+        val iosX64Main by getting
+        val iosArm64Main by getting
+        val iosSimulatorArm64Main by getting
+        val iosMain by creating {
+            dependsOn(commonMain.get())
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
         }
         jsMain.dependencies { implementation(npm("firebase", "10.12.0")) }
     }
@@ -38,4 +46,3 @@ android {
     defaultConfig { minSdk = libs.versions.android.minSdk.get().toInt() }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_11; targetCompatibility = JavaVersion.VERSION_11 }
 }
-

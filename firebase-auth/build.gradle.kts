@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.cocoapods)
-    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 kotlin {
@@ -10,7 +9,6 @@ kotlin {
         compilations.all {
             kotlinOptions { jvmTarget = "11" }
         }
-        publishLibraryVariants("release")
     }
     
     iosX64()
@@ -33,35 +31,28 @@ kotlin {
     }
     
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                api(project(":firebase-core"))
-                implementation(libs.kotlinx.coroutines.core)
-            }
+        commonMain.dependencies {
+            api(project(":firebase-core"))
+            implementation(libs.kotlinx.coroutines.core)
         }
         
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.kotlinx.coroutines.android)
-                implementation(platform(libs.firebase.bom))
-                implementation(libs.firebase.auth.ktx)
-            }
+        androidMain.dependencies {
+            implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.firebase.auth.ktx)
         }
         
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
         val iosMain by creating {
-            dependsOn(commonMain)
+            dependsOn(commonMain.get())
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
         }
         
-        val jsMain by getting {
-            dependencies {
-                implementation(npm("firebase", "10.12.0"))
-            }
+        jsMain.dependencies {
+            implementation(npm("firebase", "10.12.0"))
         }
     }
 }
@@ -69,10 +60,13 @@ kotlin {
 android {
     namespace = "com.iyr.firebase.auth"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-    defaultConfig { minSdk = libs.versions.android.minSdk.get().toInt() }
+    
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+    
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
-
