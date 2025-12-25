@@ -10,7 +10,7 @@ import cocoapods.FirebaseCore.FIROptions
  * FIRApp es la clase Objective-C equivalente a FirebaseApp.
  */
 actual class FirebaseApp internal constructor(
-    internal val ios: FIRApp
+    val ios: FIRApp
 ) {
     
     actual companion object {

@@ -1,285 +1,451 @@
-# Firebase KMP SDK
+# 🔥 Firebase KMP SDK
 
-A Kotlin Multiplatform library that provides Firebase SDK functionality for Android, iOS, and JavaScript platforms with a unified API matching the Firebase Android SDK.
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.21-blue.svg)](https://kotlinlang.org)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Android%20|%20iOS%20|%20JS-orange.svg)](https://kotlinlang.org/docs/multiplatform.html)
 
-## Features
+**Librería Kotlin Multiplatform que replica fielmente la API del Firebase Android SDK** para Android, iOS y JavaScript.
 
-- 🔥 **Full Firebase API parity** with Android SDK
-- 📱 **Multiplatform support**: Android, iOS, JavaScript
-- ⚡ **Coroutines-first**: All async operations use `suspend` functions
-- 🔄 **Real-time data**: Flow-based listeners for reactive data
-- 🎯 **Type-safe**: Full Kotlin type safety across platforms
+## ✨ Características
 
-## Modules
+- 🎯 **API idéntica al Firebase Android SDK** - Migra tu código existente fácilmente
+- 📱 **Multiplataforma** - Android, iOS (Kotlin/Native) y JavaScript
+- 🔄 **Coroutines y Flow** - API moderna con soporte completo para async/await
+- 🧪 **Testeable** - Compatible con Firebase Emulator para tests de integración
+- 📦 **Modular** - Usa solo los módulos que necesitas
 
-| Module | Description | Status |
-|--------|-------------|--------|
-| `firebase-core` | FirebaseApp initialization | ✅ Complete |
-| `firebase-auth` | Authentication (Email, Google, Facebook, Phone) | ✅ Complete |
-| `firebase-database` | Realtime Database | ✅ Complete |
-| `firebase-firestore` | Cloud Firestore | ✅ Complete |
-| `firebase-storage` | Cloud Storage | ✅ Complete |
-| `firebase-functions` | Cloud Functions client | ✅ Complete |
-| `firebase-messaging` | Cloud Messaging (FCM) | ✅ Complete |
+## 📦 Módulos Disponibles
 
-## Installation
+| Módulo | Android | iOS | JS | Descripción |
+|--------|:-------:|:---:|:--:|-------------|
+| `firebase-core` | ✅ | ✅ | ✅ | FirebaseApp, FirebaseOptions |
+| `firebase-auth` | ✅ | ✅ | ✅ | Autenticación completa (Email, Phone, OAuth) |
+| `firebase-database` | ✅ | ✅ | ✅ | Realtime Database |
+| `firebase-firestore` | ✅ | ✅ | ✅ | Cloud Firestore |
+| `firebase-storage` | ✅ | ✅ | ✅ | Cloud Storage |
+| `firebase-functions` | ✅ | ✅ | ✅ | Cloud Functions client |
+| `firebase-messaging` | ✅ | ✅ | ⚠️ | Push Notifications (FCM) |
+| `firebase-analytics` | ✅ | ✅ | ✅ | Google Analytics |
+| `firebase-crashlytics` | ✅ | ✅ | ❌ | Crashlytics |
+| `firebase-remote-config` | ✅ | ✅ | ✅ | Remote Config |
+| `firebase-performance` | ✅ | ✅ | ❌ | Performance Monitoring |
+| `firebase-appcheck` | ✅ | ✅ | ❌ | App Check |
+| `firebase-inappmessaging` | ✅ | ❌ | ❌ | In-App Messaging |
 
-### Gradle (Android/KMP)
+## 🚀 Instalación
+
+### Gradle (Kotlin DSL)
+
+Agrega el repositorio de Maven (cuando esté publicado en Maven Central):
 
 ```kotlin
 // settings.gradle.kts
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        google()
+        // O para usar Maven Local durante desarrollo:
+        mavenLocal()
     }
 }
-
-// build.gradle.kts
-dependencies {
-    implementation("com.iyr.firebase:firebase-core:1.0.0")
-    implementation("com.iyr.firebase:firebase-auth:1.0.0")
-    implementation("com.iyr.firebase:firebase-database:1.0.0")
-    implementation("com.iyr.firebase:firebase-firestore:1.0.0")
-    implementation("com.iyr.firebase:firebase-storage:1.0.0")
-    implementation("com.iyr.firebase:firebase-functions:1.0.0")
-    implementation("com.iyr.firebase:firebase-messaging:1.0.0")
-}
 ```
 
-## Usage Examples
-
-### Firebase Core
+Agrega las dependencias que necesites:
 
 ```kotlin
-import com.iyr.firebase.core.FirebaseApp
-import com.iyr.firebase.core.FirebaseOptions
-
-// Initialize (usually done automatically on Android)
-val options = FirebaseOptions.Builder()
-    .setApiKey("your-api-key")
-    .setApplicationId("your-app-id")
-    .setProjectId("your-project-id")
-    .build()
-
-FirebaseApp.initializeApp(options)
-```
-
-### Firebase Auth
-
-```kotlin
-import com.iyr.firebase.auth.FirebaseAuth
-import com.iyr.firebase.auth.EmailAuthProvider
-
-val auth = FirebaseAuth.getInstance()
-
-// Sign in with email/password
-val result = auth.signInWithEmailAndPassword("user@example.com", "password")
-println("User: ${result.user?.email}")
-
-// Create new user
-val newUser = auth.createUserWithEmailAndPassword("new@example.com", "password")
-
-// Listen to auth state changes (Flow)
-auth.authStateChanges.collect { user ->
-    if (user != null) {
-        println("Signed in: ${user.email}")
-    } else {
-        println("Signed out")
-    }
-}
-
-// Sign out
-auth.signOut()
-```
-
-### Firebase Realtime Database
-
-```kotlin
-import com.iyr.firebase.database.FirebaseDatabase
-
-val database = FirebaseDatabase.getInstance()
-val ref = database.getReference("users").child("user123")
-
-// Write data
-ref.setValue(mapOf("name" to "John", "age" to 30))
-
-// Read data once
-val snapshot = ref.get()
-println("Name: ${snapshot.child("name").getValue()}")
-
-// Listen to changes (Flow)
-ref.valueEvents.collect { snapshot ->
-    println("Data changed: ${snapshot.getValue()}")
-}
-
-// Query data
-val query = database.getReference("users")
-    .orderByChild("age")
-    .startAt(18.0)
-    .limitToFirst(10)
-    
-val results = query.get()
-```
-
-### Firebase Firestore
-
-```kotlin
-import com.iyr.firebase.firestore.FirebaseFirestore
-
-val firestore = FirebaseFirestore.getInstance()
-val collection = firestore.collection("users")
-
-// Add document
-val docRef = collection.add(mapOf("name" to "Jane", "email" to "jane@example.com"))
-
-// Get document
-val doc = firestore.document("users/user123").get()
-if (doc.exists()) {
-    println("Name: ${doc.get("name")}")
-}
-
-// Query
-val query = collection
-    .whereEqualTo("active", true)
-    .orderBy("createdAt", Direction.DESCENDING)
-    .limit(20)
-    
-val results = query.get()
-results.documents.forEach { doc ->
-    println("${doc.id}: ${doc.getData()}")
-}
-
-// Real-time updates
-collection.snapshots.collect { snapshot ->
-    snapshot.documentChanges.forEach { change ->
-        when (change.type) {
-            DocumentChangeType.ADDED -> println("New: ${change.document.id}")
-            DocumentChangeType.MODIFIED -> println("Modified: ${change.document.id}")
-            DocumentChangeType.REMOVED -> println("Removed: ${change.document.id}")
+// build.gradle.kts (módulo compartido)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("com.iyr.firebase:firebase-core:1.0.0")
+            implementation("com.iyr.firebase:firebase-auth:1.0.0")
+            implementation("com.iyr.firebase:firebase-database:1.0.0")
+            implementation("com.iyr.firebase:firebase-firestore:1.0.0")
+            implementation("com.iyr.firebase:firebase-storage:1.0.0")
+            implementation("com.iyr.firebase:firebase-functions:1.0.0")
+            implementation("com.iyr.firebase:firebase-messaging:1.0.0")
+            implementation("com.iyr.firebase:firebase-analytics:1.0.0")
+            // ... otros módulos según necesidad
         }
     }
 }
-
-// Transactions
-firestore.runTransaction {
-    val doc = get(docRef)
-    val currentCount = doc.get("count") as Long
-    update(docRef, mapOf("count" to currentCount + 1))
-}
 ```
 
-### Firebase Storage
+### Configuración para iOS
+
+Agrega los pods de Firebase en tu `Podfile`:
+
+```ruby
+# iosApp/Podfile
+target 'iosApp' do
+  use_frameworks!
+  
+  pod 'FirebaseCore', '~> 10.29'
+  pod 'FirebaseAuth', '~> 10.29'
+  pod 'FirebaseDatabase', '~> 10.29'
+  pod 'FirebaseFirestore', '~> 10.29'
+  pod 'FirebaseStorage', '~> 10.29'
+  # ... otros pods según los módulos que uses
+end
+```
+
+### Configuración para JavaScript
+
+Las dependencias de Firebase JS se incluyen automáticamente via npm.
+
+## 📖 Uso Básico
+
+### Inicialización
 
 ```kotlin
-import com.iyr.firebase.storage.FirebaseStorage
+// La inicialización es automática si tienes:
+// - Android: google-services.json
+// - iOS: GoogleService-Info.plist
 
+val app = FirebaseApp.getInstance()
+
+// O inicialización manual:
+val options = FirebaseOptions.Builder()
+    .setApiKey("AIzaSy...")
+    .setApplicationId("1:123456789:android:abc123")
+    .setProjectId("my-project")
+    .setDatabaseUrl("https://my-project.firebaseio.com")
+    .setStorageBucket("my-project.appspot.com")
+    .build()
+    
+FirebaseApp.initializeApp(context, options) // Android
+FirebaseApp.initializeApp(options) // iOS/JS
+```
+
+### Authentication
+
+```kotlin
+val auth = FirebaseAuth.getInstance()
+
+// Crear usuario
+val result = auth.createUserWithEmailAndPassword("email@example.com", "password123")
+println("Usuario creado: ${result.user?.uid}")
+
+// Iniciar sesión
+val result = auth.signInWithEmailAndPassword("email@example.com", "password123")
+val user = result.user
+
+// Cerrar sesión
+auth.signOut()
+
+// Observar cambios de autenticación
+auth.authStateChanges.collect { user ->
+    if (user != null) {
+        println("Conectado como: ${user.email}")
+    } else {
+        println("Desconectado")
+    }
+}
+
+// Autenticación anónima
+val result = auth.signInAnonymously()
+println("Usuario anónimo: ${result.user?.uid}")
+```
+
+### Realtime Database
+
+```kotlin
+val database = FirebaseDatabase.getInstance()
+val usersRef = database.getReference("users")
+
+// Escribir datos
+usersRef.child(userId).setValue(mapOf(
+    "name" to "John Doe",
+    "email" to "john@example.com",
+    "age" to 30
+))
+
+// Leer una vez
+val snapshot = usersRef.child(userId).get()
+val name = snapshot.child("name").getValue() as? String
+
+// Escuchar cambios en tiempo real
+usersRef.child(userId).valueEvents.collect { snapshot ->
+    val userData = snapshot.getValue() as? Map<*, *>
+    println("Datos actualizados: $userData")
+}
+
+// Push (generar ID único)
+val newPostRef = database.getReference("posts").push()
+newPostRef.setValue(mapOf("title" to "Mi Post"))
+println("Post ID: ${newPostRef.key}")
+```
+
+### Cloud Firestore
+
+```kotlin
+val firestore = FirebaseFirestore.getInstance()
+
+// Agregar documento (ID auto-generado)
+val docRef = firestore.collection("users").add(mapOf(
+    "name" to "Jane Doe",
+    "email" to "jane@example.com"
+))
+println("Documento creado: ${docRef.id}")
+
+// Establecer documento (ID específico)
+firestore.collection("users").document("user123").set(mapOf(
+    "name" to "John",
+    "active" to true
+))
+
+// Leer documento
+val snapshot = firestore.document("users/user123").get()
+if (snapshot.exists()) {
+    val data = snapshot.getData()
+    println("Nombre: ${data?.get("name")}")
+}
+
+// Query con filtros
+val activeUsers = firestore.collection("users")
+    .whereEqualTo("active", true)
+    .orderBy("name")
+    .limit(10)
+    .get()
+
+activeUsers.documents.forEach { doc ->
+    println("${doc.id}: ${doc.getData()}")
+}
+
+// Escuchar cambios en tiempo real
+firestore.collection("messages")
+    .whereEqualTo("roomId", "room123")
+    .snapshots
+    .collect { querySnapshot ->
+        querySnapshot.documentChanges.forEach { change ->
+            when (change.type) {
+                DocumentChange.Type.ADDED -> println("Nuevo mensaje")
+                DocumentChange.Type.MODIFIED -> println("Mensaje editado")
+                DocumentChange.Type.REMOVED -> println("Mensaje eliminado")
+            }
+        }
+    }
+```
+
+### Cloud Storage
+
+```kotlin
 val storage = FirebaseStorage.getInstance()
-val ref = storage.getReference("images/photo.jpg")
+val imagesRef = storage.getReference("images")
 
-// Upload bytes
-val bytes = byteArrayOf(/* image data */)
-val uploadTask = ref.putBytes(bytes)
-uploadTask.await()
+// Subir archivo
+val photoRef = imagesRef.child("photo.jpg")
+val uploadTask = photoRef.putFile("/path/to/local/photo.jpg")
 
-// Get download URL
-val url = ref.getDownloadUrl()
-println("URL: $url")
-
-// Download
-val data = ref.getBytes(1024 * 1024) // 1MB max
-
-// List files
-val listResult = ref.parent?.listAll()
-listResult?.items?.forEach { item ->
-    println("File: ${item.name}")
+// Monitorear progreso
+uploadTask.progressFlow.collect { progress ->
+    val percent = (100.0 * progress.bytesTransferred / progress.totalByteCount).toInt()
+    println("Subida: $percent%")
 }
+
+// Obtener URL de descarga
+val downloadUrl = photoRef.getDownloadUrl()
+println("URL: $downloadUrl")
+
+// Descargar a archivo local
+photoRef.getFile("/path/to/download/photo.jpg")
+
+// Metadata
+val metadata = photoRef.getMetadata()
+println("Tamaño: ${metadata.sizeBytes} bytes")
 ```
 
-### Firebase Functions
+### Cloud Functions
 
 ```kotlin
-import com.iyr.firebase.functions.FirebaseFunctions
-
 val functions = FirebaseFunctions.getInstance()
 
-// Call a function
-val callable = functions.getHttpsCallable("myFunction")
-val result = callable.call(mapOf("param1" to "value1"))
-println("Result: ${result.data}")
-
-// With timeout
-callable.withTimeout(30, TimeUnit.SECONDS)
-    .call(data)
+// Llamar función HTTPS
+val result = functions.getHttpsCallable("myFunction").call(mapOf(
+    "param1" to "value1",
+    "param2" to 123
+))
+val data = result.data as Map<*, *>
+println("Respuesta: $data")
 ```
 
-### Firebase Messaging
+### Remote Config
 
 ```kotlin
-import com.iyr.firebase.messaging.FirebaseMessaging
+val remoteConfig = FirebaseRemoteConfig.getInstance()
 
-val messaging = FirebaseMessaging.getInstance()
+// Configurar defaults
+remoteConfig.setDefaultsAsync(mapOf(
+    "welcome_message" to "Bienvenido!",
+    "feature_enabled" to false
+))
 
-// Get FCM token
-val token = messaging.getToken()
-println("FCM Token: $token")
-
-// Subscribe to topic
-messaging.subscribeToTopic("news")
-
-// Unsubscribe
-messaging.unsubscribeFromTopic("news")
-
-// Handle messages (Android - in your service)
-class MyMessagingService : FirebaseMessagingService() {
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        val data = remoteMessage.data
-        val notification = remoteMessage.notification
-        // Handle message
-    }
-    
-    override fun onNewToken(token: String) {
-        // Send token to server
-    }
+// Fetch y activar
+val success = remoteConfig.fetchAndActivate()
+if (success) {
+    val welcomeMsg = remoteConfig.getString("welcome_message")
+    val featureEnabled = remoteConfig.getBoolean("feature_enabled")
+    println("Mensaje: $welcomeMsg, Feature: $featureEnabled")
 }
 ```
 
-## Platform-Specific Notes
+### Analytics
 
-### Android
-- Full implementation using Firebase Android SDK
-- Automatic initialization via `google-services.json`
+```kotlin
+val analytics = FirebaseAnalytics.getInstance()
 
-### iOS
-- Uses Firebase iOS SDK via CocoaPods cinterop
-- Requires `GoogleService-Info.plist`
-- Configure in AppDelegate for messaging
+// Log evento
+analytics.logEvent("purchase", mapOf(
+    "item_id" to "SKU_123",
+    "item_name" to "Premium Plan",
+    "price" to 9.99
+))
 
-### JavaScript
-- Stub implementations for Promise-based API
-- Requires Firebase JS SDK configuration
-
-## Requirements
-
-- Kotlin 2.0.21+
-- Android: minSdk 24, compileSdk 36
-- iOS: Deployment target 14.1+
-- Xcode 15+ (for iOS builds)
-
-## Building
-
-```bash
-# Build Android
-./gradlew assembleDebug
-
-# Build all (requires compatible Xcode)
-./gradlew build
+// Establecer propiedades de usuario
+analytics.setUserProperty("subscription_type", "premium")
+analytics.setUserId("user_12345")
 ```
 
-## License
+### Performance Monitoring
 
-Apache License 2.0
+```kotlin
+val performance = FirebasePerformance.getInstance()
 
-## Contributing
+// Trace personalizado
+val trace = performance.newTrace("my_operation")
+trace.start()
+// ... operación a medir ...
+trace.putAttribute("result", "success")
+trace.putMetric("items_processed", 42)
+trace.stop()
 
-Contributions welcome! Please read our contributing guidelines.
+// HTTP Metric
+val httpMetric = performance.newHttpMetric("https://api.example.com/data", "GET")
+httpMetric.start()
+// ... hacer request HTTP ...
+httpMetric.setHttpResponseCode(200)
+httpMetric.setResponsePayloadSize(1024)
+httpMetric.stop()
+```
+
+## 🧪 Testing
+
+### Unit Tests
+
+```bash
+# Android
+./gradlew testDebugUnitTest
+
+# iOS
+./gradlew iosSimulatorArm64Test
+
+# JavaScript
+./gradlew jsNodeTest
+```
+
+### Integration Tests con Firebase Emulator
+
+1. Instala Firebase CLI:
+```bash
+npm install -g firebase-tools
+```
+
+2. Inicia los emuladores:
+```bash
+firebase emulators:start --only auth,database,firestore,storage,functions
+```
+
+3. Ejecuta tests de integración:
+```bash
+# Android
+./gradlew connectedAndroidTest
+
+# O el script incluido:
+./run_integration_tests.sh
+```
+
+## 🏗️ Arquitectura
+
+```
+firebase-kmp-sdk/
+├── firebase-core/          # FirebaseApp, FirebaseOptions
+├── firebase-auth/          # Authentication
+├── firebase-database/      # Realtime Database
+├── firebase-firestore/     # Cloud Firestore
+├── firebase-storage/       # Cloud Storage
+├── firebase-functions/     # Cloud Functions
+├── firebase-messaging/     # Push Notifications
+├── firebase-analytics/     # Analytics
+├── firebase-crashlytics/   # Crashlytics
+├── firebase-remote-config/ # Remote Config
+├── firebase-performance/   # Performance Monitoring
+├── firebase-appcheck/      # App Check
+└── firebase-inappmessaging/# In-App Messaging
+```
+
+### Implementación por Plataforma
+
+| Plataforma | Tecnología |
+|------------|------------|
+| **Android** | Wrapper sobre Firebase Android SDK oficial |
+| **iOS** | Kotlin/Native cinterop → Firebase iOS SDK (Objective-C) |
+| **JavaScript** | Interoperabilidad → Firebase JS SDK (npm) |
+
+## 📝 Publicar en Maven Local
+
+Para desarrollo local:
+
+```bash
+./gradlew publishToMavenLocal
+```
+
+Los artefactos se publican en `~/.m2/repository/com/iyr/firebase/`.
+
+## 🤝 Créditos
+
+### Autor Principal
+- **Roman Canoniero** - Arquitectura, diseño e implementación inicial
+
+### Desarrollado con ❤️ por
+- **IYR Team** - [https://iyr.com](https://iyr.com)
+
+### Agradecimientos
+- Google Firebase Team por los SDKs oficiales
+- JetBrains por Kotlin Multiplatform
+- Comunidad de Kotlin por las herramientas de cinterop
+
+## 📄 Licencia
+
+```
+Copyright 2024 Roman Canoniero / IYR
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+## 🙏 Contribuciones
+
+¡Contribuciones son bienvenidas! Por favor:
+
+1. Fork el repositorio
+2. Crea una branch para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la branch (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📬 Contacto
+
+- **Issues**: [GitHub Issues](https://github.com/iyr/firebase-kmp-sdk/issues)
+- **Email**: romancanoniero@gmail.com
+
+---
+
+**⭐ Si este proyecto te es útil, considera darle una estrella en GitHub!**

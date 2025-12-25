@@ -21,7 +21,7 @@ external object FirebaseJS {
 }
 
 actual class FirebaseApp internal constructor(
-    internal val js: dynamic
+    val js: dynamic
 ) {
     
     actual companion object {

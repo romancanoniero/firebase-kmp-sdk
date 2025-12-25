@@ -30,17 +30,19 @@ actual class FirebaseMessaging internal constructor(val ios: FIRMessaging) {
     actual var isNotificationDelegationEnabled: Boolean = false
 }
 
-actual class RemoteMessage internal constructor(val ios: FIRMessagingRemoteMessage?) {
-    actual val collapseKey: String? get() = null
-    actual val data: Map<String, String> get() = (ios?.appData as? Map<String, String>) ?: emptyMap()
-    actual val from: String? get() = null
-    actual val messageId: String? get() = null
-    actual val messageType: String? get() = null
+// En iOS, los mensajes push se reciben via APNs/UNUserNotificationCenter, no via clases de Firebase
+// RemoteMessage es un wrapper para mantener compatibilidad de API
+actual class RemoteMessage internal constructor(private val messageData: Map<String, String>?) {
+    actual val collapseKey: String? get() = messageData?.get("collapse_key")
+    actual val data: Map<String, String> get() = messageData ?: emptyMap()
+    actual val from: String? get() = messageData?.get("from")
+    actual val messageId: String? get() = messageData?.get("message_id")
+    actual val messageType: String? get() = messageData?.get("message_type")
     actual val notification: Notification? get() = null
     actual val originalPriority: Int get() = 0
     actual val priority: Int get() = 0
     actual val sentTime: Long get() = 0
-    actual val to: String? get() = null
+    actual val to: String? get() = messageData?.get("to")
     actual val ttl: Int get() = 0
     
     actual class Notification {
@@ -80,7 +82,7 @@ actual class RemoteMessage internal constructor(val ios: FIRMessagingRemoteMessa
         actual fun setTtl(ttl: Int): Builder = this
         actual fun addData(key: String, value: String?): Builder { value?.let { data[key] = it }; return this }
         actual fun clearData(): Builder { data.clear(); return this }
-        actual fun build(): RemoteMessage = RemoteMessage(null)
+        actual fun build(): RemoteMessage = RemoteMessage(data.toMap())
     }
 }
 

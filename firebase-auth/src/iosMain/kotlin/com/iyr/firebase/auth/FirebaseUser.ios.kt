@@ -2,7 +2,9 @@ package com.iyr.firebase.auth
 
 import cocoapods.FirebaseAuth.*
 import kotlinx.coroutines.suspendCancellableCoroutine
+import platform.Foundation.NSDate
 import platform.Foundation.NSError
+import platform.Foundation.timeIntervalSince1970
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 

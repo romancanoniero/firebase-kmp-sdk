@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.cocoapods)
+    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 kotlin {
@@ -8,13 +10,20 @@ kotlin {
         compilations.all {
             compilerOptions.configure {
                 freeCompilerArgs.add("-Xexpect-actual-classes")
+                freeCompilerArgs.add("-opt-in=kotlinx.cinterop.ExperimentalForeignApi")
             }
         }
     }
     
     androidTarget {
-        compilations.all { kotlinOptions { jvmTarget = "11" } }
+        compilations.all {
+            kotlinOptions { jvmTarget = "11" }
+        }
     }
+    
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
     
     js(IR) {
         browser()
@@ -22,9 +31,26 @@ kotlin {
         binaries.library()
     }
     
+    cocoapods {
+        summary = "Firebase Auth KMP"
+        homepage = "https://github.com/iyr/firebase-kmp-sdk"
+        version = "1.0.0"
+        ios.deploymentTarget = "15.0"
+        
+        // FirebaseCore para acceder a FIRApp.appNamed()
+        pod("FirebaseCore") { 
+            version = "~> 10.29"
+            extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+        pod("FirebaseAuth") { 
+            version = "~> 10.29"
+            extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+    }
+    
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":firebase-core"))
+            api(project(":firebase-core"))
             implementation(libs.kotlinx.coroutines.core)
         }
         
@@ -35,6 +61,24 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.firebase.auth.ktx)
+        }
+        
+        val androidInstrumentedTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.ext.junit)
+            }
+        }
+        
+        val iosX64Main by getting
+        val iosArm64Main by getting
+        val iosSimulatorArm64Main by getting
+        val iosMain by creating {
+            dependsOn(commonMain.get())
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+            iosSimulatorArm64Main.dependsOn(this)
         }
         
         jsMain.dependencies {
@@ -49,6 +93,7 @@ android {
     
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     
     compileOptions {

@@ -15,7 +15,20 @@ actual class FirebaseAuth internal constructor(
 ) {
     actual companion object {
         actual fun getInstance(): FirebaseAuth = FirebaseAuth(FIRAuth.auth())
-        actual fun getInstance(app: FirebaseApp): FirebaseAuth = FirebaseAuth(FIRAuth.authWithApp(app.ios))
+        
+        actual fun getInstance(app: FirebaseApp): FirebaseAuth {
+            val appName = app.getName()
+            return if (appName == "[DEFAULT]") {
+                FirebaseAuth(FIRAuth.auth())
+            } else {
+                // Limitación de Kotlin/Native cinterop: los tipos FIRApp entre
+                // módulos son incompatibles. Para apps con nombre custom,
+                // configura la app primero y usa getInstance() sin parámetros
+                throw UnsupportedOperationException(
+                    "iOS: Para apps con nombre custom, configura la app y usa getInstance()"
+                )
+            }
+        }
     }
     
     actual val currentUser: FirebaseUser?

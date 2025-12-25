@@ -12,7 +12,19 @@ import kotlin.coroutines.resumeWithException
 actual class FirebaseDatabase internal constructor(val ios: FIRDatabase) {
     actual companion object {
         actual fun getInstance(): FirebaseDatabase = FirebaseDatabase(FIRDatabase.database())
-        actual fun getInstance(app: FirebaseApp): FirebaseDatabase = FirebaseDatabase(FIRDatabase.databaseForApp(app.ios))
+        
+        actual fun getInstance(app: FirebaseApp): FirebaseDatabase {
+            // Evitar conflictos de tipos entre módulos
+            val appName = app.getName()
+            return if (appName == "[DEFAULT]") {
+                FirebaseDatabase(FIRDatabase.database())
+            } else {
+                throw UnsupportedOperationException(
+                    "Para apps con nombre custom en iOS, usa getInstance() después de configurar la app"
+                )
+            }
+        }
+        
         actual fun getInstance(url: String): FirebaseDatabase = FirebaseDatabase(FIRDatabase.databaseWithURL(url))
     }
     actual fun getReference(): DatabaseReference = DatabaseReference(ios.reference())
@@ -52,9 +64,12 @@ actual open class Query internal constructor(open val ios: FIRDatabaseQuery) {
     }
     
     actual fun addValueEventListener(listener: ValueEventListener): ValueEventListener {
-        ios.observeEventType(FIRDataEventTypeValue) { snapshot, _ ->
-            snapshot?.let { listener.onDataChange(DataSnapshot(it)) }
-        }
+        ios.observeEventType(
+            eventType = FIRDataEventType.FIRDataEventTypeValue,
+            withBlock = { snapshot: FIRDataSnapshot? ->
+                snapshot?.let { listener.onDataChange(DataSnapshot(it)) }
+            }
+        )
         return listener
     }
     actual fun addChildEventListener(listener: ChildEventListener): ChildEventListener = listener
@@ -62,9 +77,12 @@ actual open class Query internal constructor(open val ios: FIRDatabaseQuery) {
     actual fun removeEventListener(listener: ChildEventListener) {}
     
     actual val valueEvents: Flow<DataSnapshot> = callbackFlow {
-        val handle = ios.observeEventType(FIRDataEventTypeValue) { snapshot, _ ->
-            snapshot?.let { trySend(DataSnapshot(it)) }
-        }
+        val handle = ios.observeEventType(
+            eventType = FIRDataEventType.FIRDataEventTypeValue,
+            withBlock = { snapshot: FIRDataSnapshot? ->
+                snapshot?.let { trySend(DataSnapshot(it)) }
+            }
+        )
         awaitClose { ios.removeObserverWithHandle(handle) }
     }
 }
