@@ -92,6 +92,20 @@ end
 
 Las dependencias de Firebase JS se incluyen automáticamente via npm.
 
+## 📚 Documentación Detallada
+
+Para una referencia completa de todas las funciones de cada módulo, consulta:
+
+👉 **[API Reference](docs/API_REFERENCE.md)** - Documentación exhaustiva con ejemplos
+
+Incluye:
+- Todas las clases y métodos de cada módulo
+- Ejemplos de código completos
+- Casos de uso comunes
+- Patrones recomendados
+
+---
+
 ## 📖 Uso Básico
 
 ### Inicialización
