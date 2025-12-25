@@ -1,6 +1,39 @@
 # 🚀 Firebase KMP SDK - Guía de Implementación Completa
 
-Esta guía te llevará paso a paso desde cero hasta tener Firebase funcionando en tu proyecto Kotlin Multiplatform.
+Esta guía te llevará paso a paso desde cero hasta tener Firebase funcionando en tu proyecto **Compose Multiplatform**.
+
+---
+
+## 🎯 Principio Fundamental: Código Compartido
+
+Esta librería está diseñada para que **TODO el código de Firebase sea compartido en `commonMain`**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        commonMain                            │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  ✅ ViewModels                                       │   │
+│  │  ✅ Repositories                                     │   │
+│  │  ✅ Services (Auth, Database, Firestore, etc.)       │   │
+│  │  ✅ Modelos de datos                                 │   │
+│  │  ✅ UI con Compose Multiplatform                     │   │
+│  │  ✅ Llamadas a Firebase KMP SDK                      │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│  androidMain  │   │    iosMain    │   │    jsMain     │
+│ ┌───────────┐ │   │ ┌───────────┐ │   │ ┌───────────┐ │
+│ │ Solo:     │ │   │ │ Solo:     │ │   │ │ Solo:     │ │
+│ │ - Init    │ │   │ │ - Init    │ │   │ │ - Init    │ │
+│ │ - Context │ │   │ │           │ │   │ │ - Config  │ │
+│ └───────────┘ │   │ └───────────┘ │   │ └───────────┘ │
+└───────────────┘   └───────────────┘   └───────────────┘
+```
+
+**El 99% del código va en `commonMain`**. Solo la inicialización requiere código específico de plataforma.
 
 ---
 
@@ -13,7 +46,7 @@ Esta guía te llevará paso a paso desde cero hasta tener Firebase funcionando e
 5. [Configuración por Plataforma](#-paso-4-configuración-por-plataforma)
 6. [Inicialización](#-paso-5-inicialización)
 7. [Verificar Instalación](#-paso-6-verificar-instalación)
-8. [Ejemplos por Módulo](#-ejemplos-por-módulo)
+8. [Ejemplos con Compose Multiplatform](#-ejemplos-con-compose-multiplatform)
 9. [Testing con Emuladores](#-testing-con-emuladores)
 10. [Solución de Problemas](#-solución-de-problemas)
 
@@ -632,17 +665,60 @@ class MainActivity : AppCompatActivity() {
 
 ---
 
-## 💡 Ejemplos por Módulo
+## 💡 Ejemplos con Compose Multiplatform
 
-### Ejemplo Completo: App de Notas
+### ⚠️ IMPORTANTE: Dónde va cada código
 
-Este ejemplo muestra una app completa de notas usando Auth, Firestore y Storage.
+| Ubicación | Qué incluir |
+|-----------|-------------|
+| **`commonMain`** | ✅ TODO: UI, ViewModels, Repositories, Services, Modelos |
+| **`androidMain`** | ⚡ Solo: Inicialización de Firebase (con Context) |
+| **`iosMain`** | ⚡ Solo: Nada extra (init en AppDelegate.swift) |
+| **`jsMain`** | ⚡ Solo: Configuración de Firebase (FirebaseOptions) |
 
-#### Modelo de Datos
+---
+
+### Ejemplo Completo: App de Notas con Compose Multiplatform
+
+Este ejemplo muestra una app completa con **TODO el código en `commonMain`**.
+
+#### 📁 Estructura de Archivos
+
+```
+shared/src/
+├── commonMain/kotlin/com/miempresa/app/
+│   ├── models/
+│   │   └── Note.kt                    ✅ Compartido
+│   ├── repository/
+│   │   └── NotesRepository.kt         ✅ Compartido
+│   ├── viewmodel/
+│   │   └── NotesViewModel.kt          ✅ Compartido
+│   ├── ui/
+│   │   ├── screens/
+│   │   │   ├── NotesListScreen.kt     ✅ Compartido (Compose)
+│   │   │   ├── NoteDetailScreen.kt    ✅ Compartido (Compose)
+│   │   │   └── LoginScreen.kt         ✅ Compartido (Compose)
+│   │   └── components/
+│   │       └── NoteCard.kt            ✅ Compartido (Compose)
+│   └── App.kt                         ✅ Compartido (Entry point Compose)
+│
+├── androidMain/kotlin/
+│   └── FirebaseInit.android.kt        ⚡ Solo init con Context
+│
+├── iosMain/kotlin/
+│   └── (vacío o expect/actual si necesitas)
+│
+└── jsMain/kotlin/
+    └── FirebaseInit.js.kt             ⚡ Solo config con FirebaseOptions
+```
+
+---
+
+### 📦 Modelo de Datos (commonMain)
 
 ```kotlin
-// shared/src/commonMain/kotlin/models/Note.kt
-package com.miempresa.shared.models
+// ✅ shared/src/commonMain/kotlin/com/miempresa/app/models/Note.kt
+package com.miempresa.app.models
 
 data class Note(
     val id: String = "",
@@ -655,11 +731,11 @@ data class Note(
 )
 ```
 
-#### Repositorio
+### 📦 Repositorio (commonMain) - 100% Compartido
 
 ```kotlin
-// shared/src/commonMain/kotlin/repository/NotesRepository.kt
-package com.miempresa.shared.repository
+// ✅ shared/src/commonMain/kotlin/com/miempresa/app/repository/NotesRepository.kt
+package com.miempresa.app.repository
 
 import com.iyr.firebase.auth.FirebaseAuth
 import com.iyr.firebase.firestore.FirebaseFirestore
@@ -912,11 +988,11 @@ class NotesRepository {
 }
 ```
 
-#### Servicio de Autenticación
+### 📦 Servicio de Autenticación (commonMain) - 100% Compartido
 
 ```kotlin
-// shared/src/commonMain/kotlin/service/AuthService.kt
-package com.miempresa.shared.service
+// ✅ shared/src/commonMain/kotlin/com/miempresa/app/service/AuthService.kt
+package com.miempresa.app.service
 
 import com.iyr.firebase.auth.FirebaseAuth
 import com.iyr.firebase.auth.FirebaseUser
@@ -1022,22 +1098,25 @@ class AuthService {
 }
 ```
 
-#### ViewModel (Ejemplo Android)
+### 📦 ViewModel (commonMain) - 100% Compartido
 
 ```kotlin
-// androidApp/src/main/kotlin/viewmodel/NotesViewModel.kt
-package com.miempresa.miapp.viewmodel
+// ✅ shared/src/commonMain/kotlin/com/miempresa/app/viewmodel/NotesViewModel.kt
+package com.miempresa.app.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.miempresa.shared.models.Note
-import com.miempresa.shared.repository.NotesRepository
-import com.miempresa.shared.service.AuthService
+import com.miempresa.app.models.Note
+import com.miempresa.app.repository.NotesRepository
+import com.miempresa.app.service.AuthService
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
-class NotesViewModel : ViewModel() {
-    
+/**
+ * ViewModel COMPARTIDO para todas las plataformas.
+ * No usa AndroidX ViewModel, usa coroutines puras.
+ */
+class NotesViewModel(
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+) {
     private val authService = AuthService()
     private val notesRepository = NotesRepository()
     
@@ -1048,25 +1127,46 @@ class NotesViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     
-    private val _error = MutableSharedFlow<String>()
-    val error: SharedFlow<String> = _error.asSharedFlow()
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+    
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
     
     init {
-        // Observar notas en tiempo real
-        viewModelScope.launch {
-            notesRepository.observeNotes()
-                .catch { e -> _error.emit(e.message ?: "Error desconocido") }
-                .collect { _notes.value = it }
+        // Observar estado de autenticación
+        scope.launch {
+            authService.authState.collect { isAuth ->
+                _isLoggedIn.value = isAuth
+                if (isAuth) {
+                    observeNotes()
+                } else {
+                    _notes.value = emptyList()
+                }
+            }
+        }
+    }
+    
+    private fun observeNotes() {
+        scope.launch {
+            try {
+                notesRepository.observeNotes()
+                    .catch { e -> _error.value = e.message }
+                    .collect { _notes.value = it }
+            } catch (e: Exception) {
+                _error.value = e.message
+            }
         }
     }
     
     fun createNote(title: String, content: String) {
-        viewModelScope.launch {
+        scope.launch {
             _isLoading.value = true
+            _error.value = null
             try {
                 notesRepository.createNote(title, content)
             } catch (e: Exception) {
-                _error.emit(e.message ?: "Error al crear nota")
+                _error.value = e.message ?: "Error al crear nota"
             } finally {
                 _isLoading.value = false
             }
@@ -1074,12 +1174,13 @@ class NotesViewModel : ViewModel() {
     }
     
     fun updateNote(noteId: String, title: String, content: String) {
-        viewModelScope.launch {
+        scope.launch {
             _isLoading.value = true
+            _error.value = null
             try {
                 notesRepository.updateNote(noteId, title, content)
             } catch (e: Exception) {
-                _error.emit(e.message ?: "Error al actualizar nota")
+                _error.value = e.message ?: "Error al actualizar nota"
             } finally {
                 _isLoading.value = false
             }
@@ -1087,11 +1188,25 @@ class NotesViewModel : ViewModel() {
     }
     
     fun deleteNote(noteId: String) {
-        viewModelScope.launch {
+        scope.launch {
             try {
                 notesRepository.deleteNote(noteId)
             } catch (e: Exception) {
-                _error.emit(e.message ?: "Error al eliminar nota")
+                _error.value = e.message ?: "Error al eliminar nota"
+            }
+        }
+    }
+    
+    fun login(email: String, password: String) {
+        scope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                authService.login(email, password)
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Error en login"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -1099,7 +1214,426 @@ class NotesViewModel : ViewModel() {
     fun logout() {
         authService.logout()
     }
+    
+    fun clearError() {
+        _error.value = null
+    }
+    
+    fun onCleared() {
+        scope.cancel()
+    }
 }
+```
+
+---
+
+### 📱 UI con Compose Multiplatform (commonMain) - 100% Compartido
+
+#### Pantalla de Login
+
+```kotlin
+// ✅ shared/src/commonMain/kotlin/com/miempresa/app/ui/screens/LoginScreen.kt
+package com.miempresa.app.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import com.miempresa.app.viewmodel.NotesViewModel
+
+@Composable
+fun LoginScreen(
+    viewModel: NotesViewModel,
+    onLoginSuccess: () -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    
+    // Navegar si ya está logueado
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            onLoginSuccess()
+        }
+    }
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Iniciar Sesión",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Contraseña") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading
+        )
+        
+        error?.let { errorMessage ->
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Button(
+            onClick = { viewModel.login(email, password) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text("Iniciar Sesión")
+            }
+        }
+    }
+}
+```
+
+#### Pantalla de Lista de Notas
+
+```kotlin
+// ✅ shared/src/commonMain/kotlin/com/miempresa/app/ui/screens/NotesListScreen.kt
+package com.miempresa.app.ui.screens
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.miempresa.app.models.Note
+import com.miempresa.app.viewmodel.NotesViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NotesListScreen(
+    viewModel: NotesViewModel,
+    onNoteClick: (Note) -> Unit,
+    onAddClick: () -> Unit,
+    onLogout: () -> Unit
+) {
+    val notes by viewModel.notes.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Mis Notas") },
+                actions = {
+                    IconButton(onClick = { 
+                        viewModel.logout()
+                        onLogout()
+                    }) {
+                        Icon(Icons.Default.ExitToApp, "Cerrar sesión")
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onAddClick) {
+                Icon(Icons.Default.Add, "Agregar nota")
+            }
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            when {
+                isLoading && notes.isEmpty() -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                notes.isEmpty() -> {
+                    Text(
+                        text = "No hay notas. ¡Crea una!",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(notes) { note ->
+                            NoteCard(
+                                note = note,
+                                onClick = { onNoteClick(note) },
+                                onDelete = { viewModel.deleteNote(note.id) }
+                            )
+                        }
+                    }
+                }
+            }
+            
+            // Mostrar error si existe
+            error?.let { errorMessage ->
+                Snackbar(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp),
+                    action = {
+                        TextButton(onClick = { viewModel.clearError() }) {
+                            Text("OK")
+                        }
+                    }
+                ) {
+                    Text(errorMessage)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NoteCard(
+    note: Note,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = note.title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar"
+                    )
+                }
+            }
+            
+            if (note.content.isNotBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = note.content.take(100) + if (note.content.length > 100) "..." else "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+```
+
+#### App Principal (Entry Point Compose)
+
+```kotlin
+// ✅ shared/src/commonMain/kotlin/com/miempresa/app/App.kt
+package com.miempresa.app
+
+import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import com.miempresa.app.ui.screens.LoginScreen
+import com.miempresa.app.ui.screens.NotesListScreen
+import com.miempresa.app.ui.screens.NoteDetailScreen
+import com.miempresa.app.viewmodel.NotesViewModel
+import com.miempresa.app.models.Note
+
+@Composable
+fun App() {
+    // ViewModel compartido
+    val viewModel = remember { NotesViewModel() }
+    
+    // Estado de navegación simple
+    var currentScreen by remember { mutableStateOf<Screen>(Screen.Login) }
+    var selectedNote by remember { mutableStateOf<Note?>(null) }
+    
+    // Limpiar ViewModel al salir
+    DisposableEffect(Unit) {
+        onDispose { viewModel.onCleared() }
+    }
+    
+    MaterialTheme {
+        when (val screen = currentScreen) {
+            is Screen.Login -> {
+                LoginScreen(
+                    viewModel = viewModel,
+                    onLoginSuccess = { currentScreen = Screen.NotesList }
+                )
+            }
+            is Screen.NotesList -> {
+                NotesListScreen(
+                    viewModel = viewModel,
+                    onNoteClick = { note ->
+                        selectedNote = note
+                        currentScreen = Screen.NoteDetail
+                    },
+                    onAddClick = {
+                        selectedNote = null
+                        currentScreen = Screen.NoteDetail
+                    },
+                    onLogout = { currentScreen = Screen.Login }
+                )
+            }
+            is Screen.NoteDetail -> {
+                NoteDetailScreen(
+                    viewModel = viewModel,
+                    note = selectedNote,
+                    onBack = { currentScreen = Screen.NotesList }
+                )
+            }
+        }
+    }
+}
+
+sealed class Screen {
+    object Login : Screen()
+    object NotesList : Screen()
+    object NoteDetail : Screen()
+}
+```
+
+---
+
+### ⚡ Código Específico de Plataforma (MÍNIMO)
+
+#### Android: Solo Inicialización
+
+```kotlin
+// ⚡ shared/src/androidMain/kotlin/com/miempresa/app/FirebaseInit.android.kt
+package com.miempresa.app
+
+import android.content.Context
+import com.google.firebase.FirebaseApp
+
+/**
+ * ÚNICA función específica de Android.
+ * Se llama UNA VEZ desde Application.onCreate()
+ */
+fun initializeFirebase(context: Context) {
+    if (FirebaseApp.getApps(context).isEmpty()) {
+        FirebaseApp.initializeApp(context)
+    }
+}
+```
+
+```kotlin
+// androidApp/src/main/kotlin/MyApplication.kt
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        initializeFirebase(this) // ⬅️ Única llamada específica
+    }
+}
+```
+
+#### iOS: En AppDelegate (Swift)
+
+```swift
+// iosApp/iosApp/AppDelegate.swift
+import FirebaseCore
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(...) -> Bool {
+        FirebaseApp.configure() // ⬅️ Única línea específica
+        return true
+    }
+}
+```
+
+#### JS: Configuración de Options
+
+```kotlin
+// ⚡ shared/src/jsMain/kotlin/com/miempresa/app/FirebaseInit.js.kt
+package com.miempresa.app
+
+import com.iyr.firebase.core.FirebaseApp
+import com.iyr.firebase.core.FirebaseOptions
+
+/**
+ * ÚNICA función específica de JS.
+ * Se llama UNA VEZ al iniciar la app web.
+ */
+fun initializeFirebaseJS() {
+    val options = FirebaseOptions.Builder()
+        .setApiKey("AIzaSy...")          // ⬅️ De Firebase Console
+        .setApplicationId("1:123...")
+        .setProjectId("mi-proyecto")
+        .setDatabaseUrl("https://mi-proyecto.firebaseio.com")
+        .setStorageBucket("mi-proyecto.appspot.com")
+        .build()
+    
+    FirebaseApp.initializeApp(options)
+}
+```
+
+---
+
+### 📊 Resumen: ¿Qué va dónde?
+
+| Código | Ubicación | Ejemplo |
+|--------|-----------|---------|
+| **Modelos** | `commonMain` ✅ | `data class Note(...)` |
+| **Repositories** | `commonMain` ✅ | `class NotesRepository` |
+| **ViewModels** | `commonMain` ✅ | `class NotesViewModel` |
+| **Services** | `commonMain` ✅ | `class AuthService` |
+| **UI Compose** | `commonMain` ✅ | `@Composable fun LoginScreen()` |
+| **Navegación** | `commonMain` ✅ | `sealed class Screen` |
+| **Llamadas Firebase** | `commonMain` ✅ | `FirebaseAuth.getInstance()` |
+| **Init Android** | `androidMain` ⚡ | `initializeFirebase(context)` |
+| **Init iOS** | Swift ⚡ | `FirebaseApp.configure()` |
+| **Config JS** | `jsMain` ⚡ | `FirebaseOptions.Builder()...` |
+
+**Resultado: 95%+ del código es compartido** 🎉
 ```
 
 ---
