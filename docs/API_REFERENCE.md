@@ -504,6 +504,70 @@ Representa un snapshot de datos.
 | `hasChild(path)` | Si tiene un hijo específico |
 | `hasChildren()` | Si tiene hijos |
 
+#### 🆕 Extensiones Tipadas (getValue<T>)
+
+Para deserializar automáticamente a objetos tipados, usa las extensiones con kotlinx.serialization:
+
+```kotlin
+import com.iyr.firebase.database.*
+import kotlinx.serialization.Serializable
+
+// 1. Define tu modelo con @Serializable
+@Serializable
+data class User(
+    val name: String,
+    val email: String,
+    val age: Int = 0,
+    val active: Boolean = true
+)
+
+@Serializable
+data class Post(
+    val title: String,
+    val content: String,
+    val authorId: String,
+    val likes: Int = 0
+)
+
+// 2. Deserializa directamente desde DataSnapshot
+suspend fun getUser(userId: String): User? {
+    val snapshot = database.getReference("users/$userId").get()
+    return snapshot.getValue<User>()  // ⬅️ Deserialización automática
+}
+
+// 3. Deserializa lista de objetos
+suspend fun getAllUsers(): List<User> {
+    val snapshot = database.getReference("users").get()
+    return snapshot.getValueList<User>()  // ⬅️ Lista tipada
+}
+
+// 4. Deserializa como Map
+suspend fun getUsersMap(): Map<String, User> {
+    val snapshot = database.getReference("users").get()
+    return snapshot.getValueMap<User>()  // ⬅️ Map de userId -> User
+}
+
+// 5. Helpers para campos individuales
+suspend fun getUserName(userId: String): String? {
+    val snapshot = database.getReference("users/$userId").get()
+    return snapshot.getString("name")  // ⬅️ Helper tipado
+}
+```
+
+**Extensiones disponibles:**
+
+| Extensión | Descripción |
+|-----------|-------------|
+| `getValue<T>()` | Deserializa a objeto @Serializable |
+| `getValueList<T>()` | Deserializa hijos a List<T> |
+| `getValueMap<T>()` | Deserializa hijos a Map<String, T> |
+| `getString(field)` | Obtiene campo como String |
+| `getLong(field)` | Obtiene campo como Long |
+| `getInt(field)` | Obtiene campo como Int |
+| `getDouble(field)` | Obtiene campo como Double |
+| `getBoolean(field)` | Obtiene campo como Boolean |
+| `getStringList(field)` | Obtiene campo como List<String> |
+
 ---
 
 ## 📄 Firebase Cloud Firestore
@@ -826,6 +890,88 @@ FieldValue.arrayRemove("element1")
 // Eliminar campo
 FieldValue.delete()
 ```
+
+#### 🆕 Extensiones Tipadas (toObject<T>)
+
+Para deserializar automáticamente a objetos tipados, usa las extensiones con kotlinx.serialization:
+
+```kotlin
+import com.iyr.firebase.firestore.*
+import kotlinx.serialization.Serializable
+
+// 1. Define tu modelo con @Serializable
+@Serializable
+data class User(
+    val name: String,
+    val email: String,
+    val age: Int = 0,
+    val active: Boolean = true
+)
+
+// 2. Deserializa DocumentSnapshot
+suspend fun getUser(userId: String): User? {
+    val snapshot = firestore.collection("users").document(userId).get()
+    return snapshot.toObject<User>()  // ⬅️ Deserialización automática
+}
+
+// 3. Deserializa QuerySnapshot completo
+suspend fun getAllUsers(): List<User> {
+    val snapshot = firestore.collection("users").get()
+    return snapshot.toObjects<User>()  // ⬅️ Lista tipada
+}
+
+// 4. Deserializa como Map de ID -> Objeto
+suspend fun getUsersMap(): Map<String, User> {
+    val snapshot = firestore.collection("users").get()
+    return snapshot.toObjectsMap<User>()  // ⬅️ Map de docId -> User
+}
+
+// 5. Serializa objeto a Map para guardar
+suspend fun saveUser(userId: String, user: User) {
+    val data = user.toFirestoreMap()  // ⬅️ @Serializable a Map
+    firestore.collection("users").document(userId).set(data)
+}
+
+// 6. Helpers para campos individuales
+suspend fun getUserEmail(userId: String): String? {
+    val snapshot = firestore.collection("users").document(userId).get()
+    return snapshot.getString("email")  // ⬅️ Helper tipado
+}
+
+// 7. Observar con tipo
+fun observeUsers(): Flow<List<User>> {
+    return firestore.collection("users")
+        .snapshots
+        .map { it.toObjects<User>() }  // ⬅️ Flow tipado
+}
+```
+
+**Extensiones disponibles para DocumentSnapshot:**
+
+| Extensión | Descripción |
+|-----------|-------------|
+| `toObject<T>()` | Deserializa a objeto @Serializable |
+| `getString(field)` | Obtiene campo como String |
+| `getLong(field)` | Obtiene campo como Long |
+| `getInt(field)` | Obtiene campo como Int |
+| `getDouble(field)` | Obtiene campo como Double |
+| `getBoolean(field)` | Obtiene campo como Boolean |
+| `getTimestamp(field)` | Obtiene Timestamp como Long (millis) |
+| `getStringList(field)` | Obtiene campo como List<String> |
+| `getMap(field)` | Obtiene campo como Map<String, Any?> |
+
+**Extensiones disponibles para QuerySnapshot:**
+
+| Extensión | Descripción |
+|-----------|-------------|
+| `toObjects<T>()` | Deserializa todos los docs a List<T> |
+| `toObjectsMap<T>()` | Deserializa a Map<docId, T> |
+
+**Extensiones para serialización:**
+
+| Extensión | Descripción |
+|-----------|-------------|
+| `object.toFirestoreMap()` | Convierte @Serializable a Map para set() |
 
 ---
 
