@@ -4,7 +4,7 @@
  * Librería multiplataforma que replica la API del Firebase Android SDK
  * para Kotlin Multiplatform (Android, iOS, JS).
  * 
- * Paquete base: com.iyr.firebase
+ * Paquete base: io.github.romancanoniero
  * 
  * Módulos:
  * - firebase-core: FirebaseApp, FirebaseOptions
@@ -15,6 +15,7 @@
  * - firebase-functions: Cloud Functions client
  * - firebase-messaging: Push notifications (FCM)
  */
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.android.library) apply false
@@ -28,48 +29,5 @@ allprojects {
     version = "1.0.0"
 }
 
-subprojects {
-    afterEvaluate {
-        if (plugins.hasPlugin("com.vanniktech.maven.publish")) {
-            extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
-                coordinates(
-                    groupId = "io.github.romancanoniero",
-                    artifactId = project.name,
-                    version = project.version.toString()
-                )
-                
-                pom {
-                    name.set("Firebase KMP SDK - ${project.name.removePrefix("firebase-").replaceFirstChar { it.uppercase() }}")
-                    description.set("Firebase ${project.name.removePrefix("firebase-")} para Kotlin Multiplatform (Android, iOS, JS)")
-                    url.set("https://github.com/iyr/firebase-kmp-sdk")
-                    
-                    licenses {
-                        license {
-                            name.set("Apache License, Version 2.0")
-                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
-                    }
-                    
-                    developers {
-                        developer {
-                            id.set("romancanoniero")
-                            name.set("Roman Canoniero")
-                            email.set("romancanoniero@gmail.com")
-                        }
-                        developer {
-                            id.set("iyr")
-                            name.set("IYR Team")
-                            email.set("dev@iyr.com")
-                        }
-                    }
-                    
-                    scm {
-                        url.set("https://github.com/iyr/firebase-kmp-sdk")
-                        connection.set("scm:git:git://github.com/iyr/firebase-kmp-sdk.git")
-                        developerConnection.set("scm:git:ssh://github.com/iyr/firebase-kmp-sdk.git")
-                    }
-                }
-            }
-        }
-    }
-}
+// La configuración de Maven Central se hace en cada módulo
+// Las credenciales se pasan via ORG_GRADLE_PROJECT_ en GitHub Actions

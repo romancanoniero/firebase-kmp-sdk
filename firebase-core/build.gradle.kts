@@ -85,4 +85,4 @@ android {
     }
 }
 
-// Configuración de publicación Maven centralizada en build.gradle.kts raíz
+// Maven publishing via vanniktech plugin - configurado via gradle.properties
