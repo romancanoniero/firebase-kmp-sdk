@@ -24,8 +24,8 @@ plugins {
 }
 
 allprojects {
-    group = "com.iyr.firebase"
-    version = "1.0.0-SNAPSHOT"
+    group = "io.github.romancanoniero"
+    version = "1.0.0"
 }
 
 subprojects {
@@ -33,7 +33,7 @@ subprojects {
         if (plugins.hasPlugin("com.vanniktech.maven.publish")) {
             extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
                 coordinates(
-                    groupId = "com.iyr.firebase",
+                    groupId = "io.github.romancanoniero",
                     artifactId = project.name,
                     version = project.version.toString()
                 )

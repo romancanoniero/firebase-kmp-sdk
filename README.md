@@ -56,14 +56,14 @@ Agrega las dependencias que necesites:
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("com.iyr.firebase:firebase-core:1.0.0")
-            implementation("com.iyr.firebase:firebase-auth:1.0.0")
-            implementation("com.iyr.firebase:firebase-database:1.0.0")
-            implementation("com.iyr.firebase:firebase-firestore:1.0.0")
-            implementation("com.iyr.firebase:firebase-storage:1.0.0")
-            implementation("com.iyr.firebase:firebase-functions:1.0.0")
-            implementation("com.iyr.firebase:firebase-messaging:1.0.0")
-            implementation("com.iyr.firebase:firebase-analytics:1.0.0")
+            implementation("io.github.romancanoniero:firebase-core:1.0.0")
+            implementation("io.github.romancanoniero:firebase-auth:1.0.0")
+            implementation("io.github.romancanoniero:firebase-database:1.0.0")
+            implementation("io.github.romancanoniero:firebase-firestore:1.0.0")
+            implementation("io.github.romancanoniero:firebase-storage:1.0.0")
+            implementation("io.github.romancanoniero:firebase-functions:1.0.0")
+            implementation("io.github.romancanoniero:firebase-messaging:1.0.0")
+            implementation("io.github.romancanoniero:firebase-analytics:1.0.0")
             // ... otros módulos según necesidad
         }
     }
