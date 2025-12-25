@@ -24,7 +24,7 @@ kotlin {
     cocoapods {
         summary = "Firebase Functions KMP"
         homepage = "https://github.com/iyr/firebase-kmp-sdk"
-        version = "1.0.0"
+        version = "1.1.0"
         ios.deploymentTarget = "15.0"
         pod("FirebaseFunctions") {
             version = "~> 10.29"

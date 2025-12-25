@@ -13,6 +13,7 @@
 - 🔄 **Coroutines y Flow** - API moderna con soporte completo para async/await
 - 🧪 **Testeable** - Compatible con Firebase Emulator para tests de integración
 - 📦 **Modular** - Usa solo los módulos que necesitas
+- 🆕 **Serialización Tipada** - Extensiones `value<T>()`, `toObject<T>()`, `set<T>()` con kotlinx.serialization
 
 ## 📦 Módulos Disponibles
 
@@ -56,14 +57,14 @@ Agrega las dependencias que necesites:
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.romancanoniero:firebase-core:1.0.0")
-            implementation("io.github.romancanoniero:firebase-auth:1.0.0")
-            implementation("io.github.romancanoniero:firebase-database:1.0.0")
-            implementation("io.github.romancanoniero:firebase-firestore:1.0.0")
-            implementation("io.github.romancanoniero:firebase-storage:1.0.0")
-            implementation("io.github.romancanoniero:firebase-functions:1.0.0")
-            implementation("io.github.romancanoniero:firebase-messaging:1.0.0")
-            implementation("io.github.romancanoniero:firebase-analytics:1.0.0")
+            implementation("io.github.romancanoniero:firebase-core:1.1.0")
+            implementation("io.github.romancanoniero:firebase-auth:1.1.0")
+            implementation("io.github.romancanoniero:firebase-database:1.1.0")
+            implementation("io.github.romancanoniero:firebase-firestore:1.1.0")
+            implementation("io.github.romancanoniero:firebase-storage:1.1.0")
+            implementation("io.github.romancanoniero:firebase-functions:1.1.0")
+            implementation("io.github.romancanoniero:firebase-messaging:1.1.0")
+            implementation("io.github.romancanoniero:firebase-analytics:1.1.0")
             // ... otros módulos según necesidad
         }
     }
@@ -350,6 +351,153 @@ httpMetric.setHttpResponseCode(200)
 httpMetric.setResponsePayloadSize(1024)
 httpMetric.stop()
 ```
+
+---
+
+## 🆕 Serialización Tipada (v1.1.0)
+
+Una de las características más potentes de esta librería son las **extensiones tipadas** que permiten serializar/deserializar objetos automáticamente usando `kotlinx.serialization`.
+
+### Definir Modelos
+
+```kotlin
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class User(
+    val name: String,
+    val email: String,
+    val age: Int = 0,
+    val active: Boolean = true
+)
+
+@Serializable
+data class Post(
+    val title: String,
+    val content: String,
+    val authorId: String,
+    val likes: Int = 0
+)
+```
+
+### Realtime Database - Lectura Tipada
+
+```kotlin
+import com.iyr.firebase.database.*
+
+val database = FirebaseDatabase.getInstance()
+
+// Deserializar un objeto
+val user = database.getReference("users/user1").get().value<User>()
+
+// Deserializar lista de objetos
+val users = database.getReference("users").get().valueList<User>()
+
+// Deserializar como Map de ID -> Objeto
+val usersMap = database.getReference("users").get().valueMap<User>()
+
+// Helpers para campos individuales
+val name = snapshot.getString("name")
+val age = snapshot.getLong("age")
+val active = snapshot.getBoolean("active")
+```
+
+### Realtime Database - Escritura Tipada
+
+```kotlin
+val user = User(name = "John", email = "john@example.com", age = 30)
+
+// Guardar objeto tipado
+database.getReference("users/user1").set(user)
+
+// Actualizar con objeto tipado
+database.getReference("users/user1").update(User(name = "Jane"))
+
+// Push + set en una operación
+val newRef = database.getReference("posts").pushValue(post)
+println("Created: ${newRef.key}")
+```
+
+### Firestore - Lectura Tipada
+
+```kotlin
+import com.iyr.firebase.firestore.*
+
+val firestore = FirebaseFirestore.getInstance()
+
+// Deserializar documento
+val user = firestore.document("users/user1").get().toObject<User>()
+
+// Deserializar query completa
+val users = firestore.collection("users").get().toObjects<User>()
+
+// Deserializar como Map de docId -> Objeto
+val usersMap = firestore.collection("users").get().toObjectsMap<User>()
+
+// Observar con tipo
+firestore.collection("users").snapshots.collect { query ->
+    val users = query.toObjects<User>()
+}
+```
+
+### Firestore - Escritura Tipada
+
+```kotlin
+val user = User(name = "John", email = "john@example.com")
+
+// Add tipado
+val docRef = firestore.collection("users").add(user)
+
+// Set tipado
+firestore.document("users/user1").set(user)
+
+// Update tipado
+firestore.document("users/user1").update(User(name = "Jane"))
+
+// Batch tipado
+val batch = firestore.batch()
+batch.set(userRef, user)
+batch.update(postRef, postUpdate)
+batch.commit()
+
+// Transaction tipada
+firestore.runTransaction { tx ->
+    val user = tx.get(userRef).toObject<User>()!!
+    val updated = user.copy(age = user.age + 1)
+    tx.set(userRef, updated)
+    updated
+}
+```
+
+### Tabla de Extensiones Disponibles
+
+#### Realtime Database
+
+| Extensión | Descripción |
+|-----------|-------------|
+| `snapshot.value<T>()` | Deserializa a objeto @Serializable |
+| `snapshot.valueList<T>()` | Deserializa hijos a List<T> |
+| `snapshot.valueMap<T>()` | Deserializa hijos a Map<String, T> |
+| `ref.set<T>(obj)` | Guarda objeto serializado |
+| `ref.update<T>(obj)` | Actualiza con objeto serializado |
+| `ref.pushValue<T>(obj)` | Push + set, retorna referencia |
+| `obj.toFirebaseMap()` | Convierte @Serializable a Map |
+
+#### Cloud Firestore
+
+| Extensión | Descripción |
+|-----------|-------------|
+| `doc.toObject<T>()` | Deserializa documento |
+| `query.toObjects<T>()` | Deserializa query a List<T> |
+| `query.toObjectsMap<T>()` | Deserializa a Map<docId, T> |
+| `docRef.set<T>(obj)` | Guarda objeto serializado |
+| `docRef.update<T>(obj)` | Actualiza con objeto |
+| `collection.add<T>(obj)` | Add tipado |
+| `batch.set<T>(ref, obj)` | Set en batch |
+| `tx.set<T>(ref, obj)` | Set en transaction |
+| `obj.toFirestoreMap()` | Convierte @Serializable a Map |
+
+---
 
 ## 🧪 Testing
 
