@@ -17,7 +17,8 @@ import kotlinx.serialization.SerializationStrategy
  * ```
  */
 
-private val json = Json { 
+@PublishedApi
+internal val json = Json { 
     ignoreUnknownKeys = true 
     isLenient = true
     coerceInputValues = true
@@ -182,6 +183,122 @@ inline fun <reified T> QuerySnapshot.toObjectsMap(): Map<String, T> {
     }.toMap()
 }
 
+// ==================== EXTENSIONES PARA ESCRIBIR (DocumentReference) ====================
+
+/**
+ * Guarda un objeto @Serializable en el documento.
+ * 
+ * Uso:
+ * ```
+ * @Serializable
+ * data class User(val name: String, val age: Int)
+ * 
+ * val user = User("John", 30)
+ * firestore.collection("users").document("user1").set(user)
+ * ```
+ */
+suspend inline fun <reified T> DocumentReference.set(data: T, options: SetOptions = SetOptions.overwrite()) {
+    val map = data.toFirestoreMap()
+    set(map, options)
+}
+
+/**
+ * Actualiza el documento con campos de un objeto @Serializable.
+ * 
+ * Uso:
+ * ```
+ * @Serializable
+ * data class UserUpdate(val name: String? = null, val age: Int? = null)
+ * 
+ * firestore.document("users/user1").update(UserUpdate(name = "Jane"))
+ * ```
+ */
+suspend inline fun <reified T> DocumentReference.update(data: T) {
+    val map = data.toFirestoreMap()
+    update(map)
+}
+
+// ==================== EXTENSIONES PARA ESCRIBIR (CollectionReference) ====================
+
+/**
+ * Agrega un objeto @Serializable a la colección.
+ * 
+ * Uso:
+ * ```
+ * @Serializable
+ * data class User(val name: String, val age: Int)
+ * 
+ * val user = User("John", 30)
+ * val docRef = firestore.collection("users").add(user)
+ * println("Created: ${docRef.id}")
+ * ```
+ */
+suspend inline fun <reified T> CollectionReference.add(data: T): DocumentReference {
+    val map = data.toFirestoreMap()
+    return add(map)
+}
+
+// ==================== EXTENSIONES PARA WriteBatch ====================
+
+/**
+ * Agrega un set tipado al batch.
+ * 
+ * Uso:
+ * ```
+ * val batch = firestore.batch()
+ * batch.set(userRef, user)
+ * batch.set(postRef, post)
+ * batch.commit()
+ * ```
+ */
+inline fun <reified T> WriteBatch.set(
+    documentRef: DocumentReference, 
+    data: T, 
+    options: SetOptions = SetOptions.overwrite()
+): WriteBatch {
+    val map = data.toFirestoreMap()
+    return set(documentRef, map, options)
+}
+
+/**
+ * Agrega un update tipado al batch.
+ */
+inline fun <reified T> WriteBatch.update(documentRef: DocumentReference, data: T): WriteBatch {
+    val map = data.toFirestoreMap()
+    return update(documentRef, map)
+}
+
+// ==================== EXTENSIONES PARA Transaction ====================
+
+/**
+ * Set tipado en transacción.
+ * 
+ * Uso:
+ * ```
+ * firestore.runTransaction { transaction ->
+ *     val user = transaction.get(userRef).toObject<User>()
+ *     val updatedUser = user.copy(visits = user.visits + 1)
+ *     transaction.set(userRef, updatedUser)
+ * }
+ * ```
+ */
+inline fun <reified T> Transaction.set(
+    documentRef: DocumentReference, 
+    data: T, 
+    options: SetOptions = SetOptions.overwrite()
+): Transaction {
+    val map = data.toFirestoreMap()
+    return set(documentRef, map, options)
+}
+
+/**
+ * Update tipado en transacción.
+ */
+inline fun <reified T> Transaction.update(documentRef: DocumentReference, data: T): Transaction {
+    val map = data.toFirestoreMap()
+    return update(documentRef, map)
+}
+
 // ==================== SERIALIZATION HELPERS ====================
 
 /**
@@ -215,6 +332,7 @@ fun <T> T.toFirestoreMap(serializer: SerializationStrategy<T>): Map<String, Any?
 /**
  * Convierte un Map a JsonElement para deserialización.
  */
+@PublishedApi
 @Suppress("UNCHECKED_CAST")
 internal fun Map<String, Any?>.toJsonElement(): JsonElement {
     return JsonObject(this.mapValues { (_, v) -> v.toJsonElementInternal() })
@@ -238,6 +356,7 @@ private fun Any?.toJsonElementInternal(): JsonElement = when (this) {
 /**
  * Convierte JsonElement a Map para Firestore.
  */
+@PublishedApi
 @Suppress("UNCHECKED_CAST")
 internal fun JsonElement.toMap(): Map<String, Any?> {
     return when (this) {

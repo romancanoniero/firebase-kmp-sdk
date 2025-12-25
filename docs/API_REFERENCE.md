@@ -532,19 +532,19 @@ data class Post(
 // 2. Deserializa directamente desde DataSnapshot
 suspend fun getUser(userId: String): User? {
     val snapshot = database.getReference("users/$userId").get()
-    return snapshot.getValue<User>()  // ⬅️ Deserialización automática
+    return snapshot.value<User>()  // ⬅️ Deserialización automática
 }
 
 // 3. Deserializa lista de objetos
 suspend fun getAllUsers(): List<User> {
     val snapshot = database.getReference("users").get()
-    return snapshot.getValueList<User>()  // ⬅️ Lista tipada
+    return snapshot.valueList<User>()  // ⬅️ Lista tipada
 }
 
 // 4. Deserializa como Map
 suspend fun getUsersMap(): Map<String, User> {
     val snapshot = database.getReference("users").get()
-    return snapshot.getValueMap<User>()  // ⬅️ Map de userId -> User
+    return snapshot.valueMap<User>()  // ⬅️ Map de userId -> User
 }
 
 // 5. Helpers para campos individuales
@@ -554,19 +554,45 @@ suspend fun getUserName(userId: String): String? {
 }
 ```
 
-**Extensiones disponibles:**
+**Extensiones de LECTURA:**
 
 | Extensión | Descripción |
 |-----------|-------------|
-| `getValue<T>()` | Deserializa a objeto @Serializable |
-| `getValueList<T>()` | Deserializa hijos a List<T> |
-| `getValueMap<T>()` | Deserializa hijos a Map<String, T> |
+| `value<T>()` | Deserializa a objeto @Serializable |
+| `valueList<T>()` | Deserializa hijos a List<T> |
+| `valueMap<T>()` | Deserializa hijos a Map<String, T> |
 | `getString(field)` | Obtiene campo como String |
 | `getLong(field)` | Obtiene campo como Long |
 | `getInt(field)` | Obtiene campo como Int |
 | `getDouble(field)` | Obtiene campo como Double |
 | `getBoolean(field)` | Obtiene campo como Boolean |
 | `getStringList(field)` | Obtiene campo como List<String> |
+
+**Extensiones de ESCRITURA:**
+
+```kotlin
+// Guardar objeto tipado
+ref.set(user)  // ⬅️ Serializa automáticamente
+
+// Update tipado
+ref.update(userUpdate)
+
+// Push con objeto tipado
+val newRef = ref.pushValue(post)  // ⬅️ Push + set en uno
+println("Created: ${newRef.key}")
+
+// Convertir a Map manualmente
+val map = user.toFirebaseMap()
+val value = data.toFirebaseValue()
+```
+
+| Extensión | Descripción |
+|-----------|-------------|
+| `ref.set<T>(obj)` | Guarda objeto serializado |
+| `ref.update<T>(obj)` | Actualiza con objeto serializado |
+| `ref.pushValue<T>(obj)` | Push + set, retorna ref |
+| `obj.toFirebaseMap()` | Convierte @Serializable a Map |
+| `obj.toFirebaseValue()` | Convierte @Serializable a Any |
 
 ---
 
@@ -946,7 +972,7 @@ fun observeUsers(): Flow<List<User>> {
 }
 ```
 
-**Extensiones disponibles para DocumentSnapshot:**
+**Extensiones de LECTURA (DocumentSnapshot):**
 
 | Extensión | Descripción |
 |-----------|-------------|
@@ -960,18 +986,50 @@ fun observeUsers(): Flow<List<User>> {
 | `getStringList(field)` | Obtiene campo como List<String> |
 | `getMap(field)` | Obtiene campo como Map<String, Any?> |
 
-**Extensiones disponibles para QuerySnapshot:**
+**Extensiones de LECTURA (QuerySnapshot):**
 
 | Extensión | Descripción |
 |-----------|-------------|
 | `toObjects<T>()` | Deserializa todos los docs a List<T> |
 | `toObjectsMap<T>()` | Deserializa a Map<docId, T> |
 
-**Extensiones para serialización:**
+**Extensiones de ESCRITURA:**
+
+```kotlin
+// DocumentReference
+docRef.set(user)              // ⬅️ Serializa automáticamente
+docRef.set(user, SetOptions.merge())
+docRef.update(userUpdate)
+
+// CollectionReference
+val newDoc = collection.add(user)  // ⬅️ Add tipado
+println("Created: ${newDoc.id}")
+
+// WriteBatch
+val batch = firestore.batch()
+batch.set(userRef, user)
+batch.update(postRef, postUpdate)
+batch.commit()
+
+// Transaction
+firestore.runTransaction { tx ->
+    val user = tx.get(userRef).toObject<User>()!!
+    val updated = user.copy(visits = user.visits + 1)
+    tx.set(userRef, updated)
+    updated
+}
+```
 
 | Extensión | Descripción |
 |-----------|-------------|
-| `object.toFirestoreMap()` | Convierte @Serializable a Map para set() |
+| `docRef.set<T>(obj)` | Guarda objeto serializado |
+| `docRef.update<T>(obj)` | Actualiza con objeto |
+| `collection.add<T>(obj)` | Add tipado, retorna DocumentReference |
+| `batch.set<T>(ref, obj)` | Set tipado en batch |
+| `batch.update<T>(ref, obj)` | Update tipado en batch |
+| `tx.set<T>(ref, obj)` | Set tipado en transaction |
+| `tx.update<T>(ref, obj)` | Update tipado en transaction |
+| `obj.toFirestoreMap()` | Convierte @Serializable a Map |
 
 ---
 
