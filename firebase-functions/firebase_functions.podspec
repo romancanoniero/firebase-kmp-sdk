@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'firebase_functions'
-    spec.version                  = '1.0.0'
+    spec.version                  = '1.1.0'
     spec.homepage                 = 'https://github.com/iyr/firebase-kmp-sdk'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''

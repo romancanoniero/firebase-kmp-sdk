@@ -30,7 +30,7 @@ kotlin {
     cocoapods {
         summary = "Firebase Firestore KMP"
         homepage = "https://github.com/iyr/firebase-kmp-sdk"
-        version = "1.1.0"
+        version = "1.2.0"
         ios.deploymentTarget = "15.0"
         
         // Firebase Firestore - probando con el pod interno que tiene headers Obj-C

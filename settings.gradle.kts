@@ -15,6 +15,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "firebase-kmp-sdk"
 
+// BOM - Bill of Materials (gestión de versiones)
+include(":firebase-bom")
+
 // Core module - FirebaseApp, FirebaseOptions
 include(":firebase-core")
 

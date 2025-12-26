@@ -19,6 +19,7 @@
 
 | Módulo | Android | iOS | JS | Descripción |
 |--------|:-------:|:---:|:--:|-------------|
+| `firebase-bom` | ✅ | ✅ | ✅ | **Bill of Materials** - Gestión de versiones |
 | `firebase-core` | ✅ | ✅ | ✅ | FirebaseApp, FirebaseOptions |
 | `firebase-auth` | ✅ | ✅ | ✅ | Autenticación completa (Email, Phone, OAuth) |
 | `firebase-database` | ✅ | ✅ | ✅ | Realtime Database |
@@ -37,35 +38,49 @@
 
 ### Gradle (Kotlin DSL)
 
-Agrega el repositorio de Maven (cuando esté publicado en Maven Central):
+#### Opción 1: Usando BOM (Recomendado) ⭐
 
-```kotlin
-// settings.gradle.kts
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-        // O para usar Maven Local durante desarrollo:
-        mavenLocal()
-    }
-}
-```
-
-Agrega las dependencias que necesites:
+El BOM (Bill of Materials) gestiona las versiones de todos los módulos automáticamente:
 
 ```kotlin
 // build.gradle.kts (módulo compartido)
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.romancanoniero:firebase-core:1.1.0")
-            implementation("io.github.romancanoniero:firebase-auth:1.1.0")
-            implementation("io.github.romancanoniero:firebase-database:1.1.0")
-            implementation("io.github.romancanoniero:firebase-firestore:1.1.0")
-            implementation("io.github.romancanoniero:firebase-storage:1.1.0")
-            implementation("io.github.romancanoniero:firebase-functions:1.1.0")
-            implementation("io.github.romancanoniero:firebase-messaging:1.1.0")
-            implementation("io.github.romancanoniero:firebase-analytics:1.1.0")
-            // ... otros módulos según necesidad
+            // BOM - gestiona las versiones automáticamente
+            implementation(platform("io.github.romancanoniero:firebase-bom:1.2.0"))
+            
+            // Agrega los módulos que necesites SIN especificar versión
+            implementation("io.github.romancanoniero:firebase-core")
+            implementation("io.github.romancanoniero:firebase-auth")
+            implementation("io.github.romancanoniero:firebase-database")
+            implementation("io.github.romancanoniero:firebase-firestore")
+            implementation("io.github.romancanoniero:firebase-storage")
+            implementation("io.github.romancanoniero:firebase-functions")
+            implementation("io.github.romancanoniero:firebase-messaging")
+            implementation("io.github.romancanoniero:firebase-analytics")
+        }
+    }
+}
+```
+
+#### Opción 2: Versiones Explícitas
+
+Si prefieres especificar cada versión manualmente:
+
+```kotlin
+// build.gradle.kts (módulo compartido)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.github.romancanoniero:firebase-core:1.2.0")
+            implementation("io.github.romancanoniero:firebase-auth:1.2.0")
+            implementation("io.github.romancanoniero:firebase-database:1.2.0")
+            implementation("io.github.romancanoniero:firebase-firestore:1.2.0")
+            implementation("io.github.romancanoniero:firebase-storage:1.2.0")
+            implementation("io.github.romancanoniero:firebase-functions:1.2.0")
+            implementation("io.github.romancanoniero:firebase-messaging:1.2.0")
+            implementation("io.github.romancanoniero:firebase-analytics:1.2.0")
         }
     }
 }
