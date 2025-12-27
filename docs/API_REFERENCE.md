@@ -24,7 +24,7 @@ Este documento detalla todas las funciones disponibles en cada módulo de Fireba
 
 ## 🔥 Firebase Core
 
-**Dependencia:** `io.github.romancanoniero:firebase-core:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-core:1.2.3`
 
 ### Clases Principales
 
@@ -98,7 +98,7 @@ Configuración para inicializar Firebase.
 
 ## 🔐 Firebase Auth
 
-**Dependencia:** `io.github.romancanoniero:firebase-auth:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-auth:1.2.3`
 
 ### Clases Principales
 
@@ -287,7 +287,7 @@ val result = auth.signInWithCredential(credential)
 
 ## 📊 Firebase Realtime Database
 
-**Dependencia:** `io.github.romancanoniero:firebase-database:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-database:1.2.3`
 
 ### Clases Principales
 
@@ -598,7 +598,7 @@ val value = data.toFirebaseValue()
 
 ## 📄 Firebase Cloud Firestore
 
-**Dependencia:** `io.github.romancanoniero:firebase-firestore:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-firestore:1.2.3`
 
 ### Clases Principales
 
@@ -1035,7 +1035,7 @@ firestore.runTransaction { tx ->
 
 ## 📁 Firebase Cloud Storage
 
-**Dependencia:** `io.github.romancanoniero:firebase-storage:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-storage:1.2.3`
 
 ### Clases Principales
 
@@ -1250,7 +1250,7 @@ class ProfileImageUploader(private val storage: FirebaseStorage) {
 
 ## ⚡ Firebase Cloud Functions
 
-**Dependencia:** `io.github.romancanoniero:firebase-functions:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-functions:1.2.3`
 
 ```kotlin
 import com.iyr.firebase.functions.FirebaseFunctions
@@ -1320,7 +1320,7 @@ suspend fun safeCall() {
 
 ## 📨 Firebase Cloud Messaging
 
-**Dependencia:** `io.github.romancanoniero:firebase-messaging:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-messaging:1.2.3`
 
 ```kotlin
 import com.iyr.firebase.messaging.FirebaseMessaging
@@ -1373,7 +1373,7 @@ suspend fun unsubscribeFromPromotions() {
 
 ## 📊 Firebase Analytics
 
-**Dependencia:** `io.github.romancanoniero:firebase-analytics:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-analytics:1.2.3`
 
 ```kotlin
 import com.iyr.firebase.analytics.FirebaseAnalytics
@@ -1473,7 +1473,7 @@ fun enableAnalytics() {
 
 ## 💥 Firebase Crashlytics
 
-**Dependencia:** `io.github.romancanoniero:firebase-crashlytics:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-crashlytics:1.2.3`
 
 ```kotlin
 import com.iyr.firebase.crashlytics.FirebaseCrashlytics
@@ -1557,7 +1557,7 @@ fun checkPreviousCrash() {
 
 ## 🎛️ Firebase Remote Config
 
-**Dependencia:** `io.github.romancanoniero:firebase-remote-config:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-remote-config:1.2.3`
 
 ```kotlin
 import com.iyr.firebase.remoteconfig.FirebaseRemoteConfig
@@ -1676,7 +1676,7 @@ fun getExperimentVariant(): String {
 
 ## ⏱️ Firebase Performance
 
-**Dependencia:** `io.github.romancanoniero:firebase-performance:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-performance:1.2.3`
 
 ```kotlin
 import com.iyr.firebase.performance.FirebasePerformance
@@ -1815,7 +1815,7 @@ val result = performance.trace("quick_operation") {
 
 ## ✅ Firebase App Check
 
-**Dependencia:** `io.github.romancanoniero:firebase-appcheck:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-appcheck:1.2.3`
 
 ```kotlin
 import com.iyr.firebase.appcheck.FirebaseAppCheck
@@ -1878,7 +1878,7 @@ fun listenToTokenChanges() {
 
 ## 💬 Firebase In-App Messaging
 
-**Dependencia:** `io.github.romancanoniero:firebase-inappmessaging:1.0.0`
+**Dependencia:** `io.github.romancanoniero:firebase-inappmessaging:1.2.3`
 
 > ⚠️ **Nota:** Solo disponible en Android.
 

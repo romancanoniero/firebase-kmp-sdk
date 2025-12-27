@@ -35,19 +35,19 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // Core (obligatorio)
-            implementation("io.github.romancanoniero:firebase-core:1.0.0")
+            implementation("io.github.romancanoniero:firebase-core:1.2.3")
             
             // Módulos opcionales (agrega los que necesites)
-            implementation("io.github.romancanoniero:firebase-auth:1.0.0")
-            implementation("io.github.romancanoniero:firebase-database:1.0.0")
-            implementation("io.github.romancanoniero:firebase-firestore:1.0.0")
-            implementation("io.github.romancanoniero:firebase-storage:1.0.0")
-            implementation("io.github.romancanoniero:firebase-functions:1.0.0")
-            implementation("io.github.romancanoniero:firebase-messaging:1.0.0")
-            implementation("io.github.romancanoniero:firebase-analytics:1.0.0")
-            implementation("io.github.romancanoniero:firebase-remote-config:1.0.0")
-            implementation("io.github.romancanoniero:firebase-performance:1.0.0")
-            implementation("io.github.romancanoniero:firebase-crashlytics:1.0.0")
+            implementation("io.github.romancanoniero:firebase-auth:1.2.3")
+            implementation("io.github.romancanoniero:firebase-database:1.2.3")
+            implementation("io.github.romancanoniero:firebase-firestore:1.2.3")
+            implementation("io.github.romancanoniero:firebase-storage:1.2.3")
+            implementation("io.github.romancanoniero:firebase-functions:1.2.3")
+            implementation("io.github.romancanoniero:firebase-messaging:1.2.3")
+            implementation("io.github.romancanoniero:firebase-analytics:1.2.3")
+            implementation("io.github.romancanoniero:firebase-remote-config:1.2.3")
+            implementation("io.github.romancanoniero:firebase-performance:1.2.3")
+            implementation("io.github.romancanoniero:firebase-crashlytics:1.2.3")
         }
     }
 }
