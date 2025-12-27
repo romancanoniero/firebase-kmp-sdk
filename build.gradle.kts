@@ -26,7 +26,7 @@ plugins {
 
 allprojects {
     group = "io.github.romancanoniero"
-    version = "1.2.1"
+    version = "1.2.2"
 }
 
 // La configuración de Maven Central se hace en cada módulo

@@ -25,7 +25,7 @@ kotlin {
     cocoapods {
         summary = "Firebase Database KMP"
         homepage = "https://github.com/iyr/firebase-kmp-sdk"
-        version = "1.2.0"
+        version = "1.0.0"
         ios.deploymentTarget = "15.0"
         pod("FirebaseDatabase") { version = "~> 10.29" }
     }
@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.kotlin.test)
         }
         androidMain.dependencies {
+            implementation(libs.kotlinx.coroutines.play.services)
             implementation(libs.firebase.database.ktx)
         }
         

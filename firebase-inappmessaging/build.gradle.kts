@@ -29,6 +29,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.kotlinx.coroutines.play.services)
             implementation("com.google.firebase:firebase-inappmessaging-ktx:21.0.1")
             implementation("com.google.firebase:firebase-inappmessaging-display-ktx:21.0.1")
         }

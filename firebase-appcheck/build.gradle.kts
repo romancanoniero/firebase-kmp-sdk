@@ -24,7 +24,7 @@ kotlin {
     cocoapods {
         summary = "Firebase App Check KMP"
         homepage = "https://github.com/iyr/firebase-kmp-sdk"
-        version = "1.2.0"
+        version = "1.0.0"
         ios.deploymentTarget = "15.0"
         
         pod("FirebaseAppCheck") {
@@ -40,6 +40,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.kotlinx.coroutines.play.services)
             implementation("com.google.firebase:firebase-appcheck-ktx:18.0.0")
             implementation("com.google.firebase:firebase-appcheck-playintegrity:18.0.0")
             implementation("com.google.firebase:firebase-appcheck-debug:18.0.0")

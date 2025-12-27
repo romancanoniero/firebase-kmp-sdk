@@ -28,12 +28,21 @@ kotlin {
     cocoapods {
         summary = "Firebase Analytics KMP"
         homepage = "https://github.com/iyr/firebase-kmp-sdk"
-        version = "1.2.0"
+        version = "1.0.0"
         ios.deploymentTarget = "15.0"
         
         pod("FirebaseAnalytics") {
             version = "~> 10.29"
             extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+        pod("GoogleUtilities") {
+            version = "~> 7.12"
+        }
+        pod("nanopb") {
+            version = "~> 2.30910"
+        }
+        pod("FirebaseInstallations") {
+            version = "~> 10.29"
         }
     }
     
@@ -46,6 +55,7 @@ kotlin {
             implementation(libs.kotlin.test)
         }
         androidMain.dependencies {
+            implementation(libs.kotlinx.coroutines.play.services)
             implementation(libs.firebase.analytics.ktx)
         }
         val iosX64Main by getting

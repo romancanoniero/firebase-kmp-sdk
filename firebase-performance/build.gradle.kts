@@ -26,7 +26,7 @@ kotlin {
     cocoapods {
         summary = "Firebase Performance KMP"
         homepage = "https://github.com/iyr/firebase-kmp-sdk"
-        version = "1.2.0"
+        version = "1.0.0"
         ios.deploymentTarget = "15.0"
         
         pod("FirebasePerformance") {
@@ -42,6 +42,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.kotlinx.coroutines.play.services)
             implementation("com.google.firebase:firebase-perf-ktx:21.0.2")
         }
         val iosX64Main by getting

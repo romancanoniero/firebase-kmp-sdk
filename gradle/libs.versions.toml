@@ -1,6 +1,6 @@
 [versions]
 # Kotlin & Gradle
-kotlin = "2.1.21"
+kotlin = "2.0.21"
 agp = "8.2.2"
 
 # Android SDK
@@ -28,6 +28,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 # Coroutines
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines" }
 
 # Firebase Android - con versiones explícitas
 firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx", version = "21.0.0" }
