@@ -20,12 +20,27 @@ import kotlinx.serialization.SerializationStrategy
  * ```
  */
 
+/**
+ * Configuración JSON para deserialización de Firebase.
+ * 
+ * IMPORTANTE: Firebase Realtime Database usa snake_case por convención,
+ * pero Kotlin data classes usan camelCase. Esta configuración maneja
+ * automáticamente la conversión entre ambos formatos.
+ * 
+ * - ignoreUnknownKeys: Ignora campos en Firebase que no existen en la clase
+ * - isLenient: Permite valores no estrictos (ej: "123" como número)
+ * - coerceInputValues: Convierte null a valores por defecto
+ * - encodeDefaults: Incluye valores por defecto al escribir
+ * - namingStrategy: Convierte snake_case de Firebase a camelCase de Kotlin
+ */
 @PublishedApi
 internal val json = Json { 
     ignoreUnknownKeys = true 
     isLenient = true
     coerceInputValues = true
     encodeDefaults = true
+    // ✅ NUEVO: Soporte automático para snake_case <-> camelCase
+    namingStrategy = JsonNamingStrategy.SnakeCase
 }
 
 /**
@@ -48,6 +63,18 @@ inline fun <reified T> DataSnapshot.value(): T? {
         null
     }
 }
+
+/**
+ * Alias de value<T>() para compatibilidad con código legacy.
+ * 
+ * Uso:
+ * ```
+ * val user = snapshot.getValue<User>()
+ * ```
+ * 
+ * @return El objeto deserializado o null si no existe o hay error
+ */
+inline fun <reified T> DataSnapshot.getValue(): T? = value()
 
 /**
  * Convierte el valor del snapshot a un objeto usando un deserializador específico.
@@ -81,6 +108,18 @@ inline fun <reified T> DataSnapshot.valueList(): List<T> {
         child.value<T>()
     }
 }
+
+/**
+ * Alias de valueList<T>() para compatibilidad con código legacy.
+ * 
+ * Uso:
+ * ```
+ * val users = snapshot.getValuesList<User>()
+ * ```
+ * 
+ * @return Lista de objetos deserializados
+ */
+inline fun <reified T> DataSnapshot.getValuesList(): List<T> = valueList()
 
 /**
  * Convierte los hijos del snapshot a un Map con las keys y valores tipados.
@@ -163,6 +202,96 @@ fun DataSnapshot.getBoolean(field: String): Boolean? {
 fun DataSnapshot.getStringList(field: String): List<String>? {
     val value = child(field).getValue()
     return (value as? List<*>)?.filterIsInstance<String>()
+}
+
+// ==================== EXTENSIONES PARA QUERIES (addListenerForSingleValueEvent) ====================
+
+/**
+ * Agrega un listener que se ejecuta UNA SOLA VEZ cuando los datos están disponibles.
+ * Similar a addValueEventListener pero se auto-remueve después del primer callback.
+ * 
+ * DIFERENCIA CON get():
+ * - get(): Suspending function, retorna DataSnapshot directamente (mejor para coroutines)
+ * - addListenerForSingleValueEvent(): Callback-based, se ejecuta una vez y se auto-remueve
+ * 
+ * USO TÍPICO:
+ * ```
+ * database.getReference("users/user1").addListenerForSingleValueEvent(object : ValueEventListener {
+ *     override fun onDataChange(snapshot: DataSnapshot) {
+ *         val user = snapshot.getValue<User>()
+ *         println("User loaded once: ${user?.name}")
+ *     }
+ *     override fun onCancelled(error: DatabaseError) {
+ *         println("Error: ${error.message}")
+ *     }
+ * })
+ * ```
+ * 
+ * NOTA: Para código moderno con coroutines, se recomienda usar `suspend fun get()` en su lugar.
+ * 
+ * @param listener Listener que se ejecutará una sola vez
+ */
+fun Query.addListenerForSingleValueEvent(listener: ValueEventListener) {
+    // Wrapper que se auto-remueve después del primer callback
+    val singleUseListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            // Llamar al listener original
+            listener.onDataChange(snapshot)
+            // Auto-remover después de recibir datos
+            removeEventListener(this)
+        }
+        
+        override fun onCancelled(error: DatabaseError) {
+            // Llamar al listener original
+            listener.onCancelled(error)
+            // Auto-remover en caso de error también
+            removeEventListener(this)
+        }
+    }
+    
+    // Registrar el listener wrapper
+    addValueEventListener(singleUseListener)
+}
+
+/**
+ * Versión con lambda para addListenerForSingleValueEvent.
+ * Solo maneja onDataChange, errores se ignoran.
+ * 
+ * USO TÍPICO:
+ * ```
+ * database.getReference("users/user1").addListenerForSingleValueEvent { snapshot ->
+ *     val user = snapshot.getValue<User>()
+ *     println("User loaded: ${user?.name}")
+ * }
+ * ```
+ * 
+ * @param onDataChange Lambda que se ejecuta una vez cuando los datos están disponibles
+ */
+inline fun Query.addListenerForSingleValueEvent(crossinline onDataChange: (DataSnapshot) -> Unit) {
+    addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            onDataChange(snapshot)
+        }
+        override fun onCancelled(error: DatabaseError) {
+            // Silently ignore errors (lambda version)
+        }
+    })
+}
+
+/**
+ * Alias de DatabaseReference para addListenerForSingleValueEvent.
+ * DatabaseReference extiende Query, así que hereda el método, pero este alias
+ * proporciona mejor autocomplete en el IDE.
+ */
+fun DatabaseReference.addListenerForSingleValueEvent(listener: ValueEventListener) {
+    (this as Query).addListenerForSingleValueEvent(listener)
+}
+
+/**
+ * Alias de DatabaseReference para addListenerForSingleValueEvent (versión lambda).
+ */
+inline fun DatabaseReference.addListenerForSingleValueEvent(crossinline onDataChange: (DataSnapshot) -> Unit) {
+    (this as Query).addListenerForSingleValueEvent(onDataChange)
 }
 
 // ==================== EXTENSIONES PARA ESCRIBIR (DatabaseReference) ====================
