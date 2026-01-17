@@ -119,6 +119,13 @@ actual class FirebaseAuth internal constructor(
     actual fun useEmulator(host: String, port: Int) {
         android.useEmulator(host, port)
     }
+    
+    actual suspend fun getCustomClaims(forceRefresh: Boolean): Map<String, Any>? {
+        val user = android.currentUser ?: return null
+        val tokenResult = user.getIdToken(forceRefresh).await()
+        @Suppress("UNCHECKED_CAST")
+        return tokenResult.claims as? Map<String, Any>
+    }
 }
 
 actual interface AuthStateListener {

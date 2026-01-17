@@ -184,6 +184,24 @@ actual class FirebaseAuth internal constructor(
     actual fun useEmulator(host: String, port: Int) {
         ios.useEmulatorWithHost(host, port.toLong())
     }
+    
+    actual suspend fun getCustomClaims(forceRefresh: Boolean): Map<String, Any>? =
+        suspendCancellableCoroutine { cont ->
+            val user = ios.currentUser
+            if (user == null) {
+                cont.resume(null)
+                return@suspendCancellableCoroutine
+            }
+            user.getIDTokenResultForcingRefresh(forceRefresh) { result, error ->
+                if (error != null) {
+                    cont.resumeWithException(error.toException())
+                } else {
+                    @Suppress("UNCHECKED_CAST")
+                    val claims = result?.claims as? Map<String, Any>
+                    cont.resume(claims)
+                }
+            }
+        }
 }
 
 actual interface AuthStateListener {

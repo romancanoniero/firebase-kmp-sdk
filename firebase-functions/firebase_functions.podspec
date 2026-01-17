@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'firebase_functions'
-    spec.version                  = '1.1.0'
+    spec.version                  = '1.0.0'
     spec.homepage                 = 'https://github.com/iyr/firebase-kmp-sdk'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
@@ -10,27 +10,20 @@ Pod::Spec.new do |spec|
     spec.libraries                = 'c++'
     spec.ios.deployment_target    = '15.0'
     spec.dependency 'FirebaseFunctions', '~> 10.29'
-                
     if !Dir.exist?('build/cocoapods/framework/firebase_functions.framework') || Dir.empty?('build/cocoapods/framework/firebase_functions.framework')
         raise "
-
         Kotlin framework 'firebase_functions' doesn't exist yet, so a proper Xcode project can't be generated.
         'pod install' should be executed after running ':generateDummyFramework' Gradle task:
-
             ./gradlew :firebase-functions:generateDummyFramework
-
         Alternatively, proper pod installation is performed during Gradle sync in the IDE (if Podfile location is set)"
     end
-                
     spec.xcconfig = {
         'ENABLE_USER_SCRIPT_SANDBOXING' => 'NO',
     }
-                
     spec.pod_target_xcconfig = {
         'KOTLIN_PROJECT_PATH' => ':firebase-functions',
         'PRODUCT_MODULE_NAME' => 'firebase_functions',
     }
-                
     spec.script_phases = [
         {
             :name => 'Build firebase_functions',
@@ -38,8 +31,8 @@ Pod::Spec.new do |spec|
             :shell_path => '/bin/sh',
             :script => <<-SCRIPT
                 if [ "YES" = "$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED" ]; then
-                  echo "Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \"YES\""
-                  exit 0
+                    echo "Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \"YES\""
+                    exit 0
                 fi
                 set -ev
                 REPO_ROOT="$PODS_TARGET_SRCROOT"
@@ -50,5 +43,4 @@ Pod::Spec.new do |spec|
             SCRIPT
         }
     ]
-                
 end

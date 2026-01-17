@@ -8,15 +8,24 @@ plugins {
 kotlin {
     targets.all {
         compilations.all {
-            compilerOptions.configure {
-                freeCompilerArgs.add("-Xexpect-actual-classes")
-                freeCompilerArgs.add("-opt-in=kotlinx.cinterop.ExperimentalForeignApi")
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.add("-Xexpect-actual-classes")
+                    freeCompilerArgs.add("-opt-in=kotlinx.cinterop.ExperimentalForeignApi")
+                }
             }
         }
     }
     
     androidTarget {
-        compilations.all { kotlinOptions { jvmTarget = "11" } }
+        compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+                }
+            }
+        }
+        publishLibraryVariants("release")
     }
     iosX64(); iosArm64(); iosSimulatorArm64()
     js(IR) { browser(); nodejs(); binaries.library() }

@@ -55,11 +55,24 @@ internal val json = Json {
  * @return El objeto deserializado o null si no existe o hay error
  */
 inline fun <reified T> DataSnapshot.value(): T? {
-    val rawValue = getValue() ?: return null
+    val typeName = T::class.simpleName ?: "Unknown"
+    val snapshotKey = key ?: "null"
+    val rawValue = getValue() ?: run {
+        println("   🔬 [SDK] value<$typeName>(): rawValue es NULL para key=$snapshotKey")
+        return null
+    }
     return try {
         val jsonElement = rawValue.toJsonElement()
-        json.decodeFromJsonElement(jsonElement)
+        val result: T = json.decodeFromJsonElement(jsonElement)
+        result
     } catch (e: Exception) {
+        // Log detallado del error de deserialización
+        println("   ❌ [SDK] value<$typeName>() FALLÓ para key=$snapshotKey")
+        println("      error: ${e.message}")
+        // Mostrar los campos del rawValue para diagnóstico
+        if (rawValue is Map<*, *>) {
+            println("      📝 Campos en snapshot: ${rawValue.keys.take(10)}")
+        }
         null
     }
 }
@@ -104,9 +117,25 @@ fun <T> DataSnapshot.value(deserializer: DeserializationStrategy<T>): T? {
  * @return Lista de objetos deserializados
  */
 inline fun <reified T> DataSnapshot.valueList(): List<T> {
-    return children.mapNotNull { child ->
-        child.value<T>()
+    val typeName = T::class.simpleName ?: "Unknown"
+    val childrenList = children.toList()
+    println("   🔬 [SDK] valueList<$typeName>(): ${childrenList.size} children")
+    
+    var successCount = 0
+    var failCount = 0
+    
+    val result = childrenList.mapNotNull { child ->
+        val value = child.value<T>()
+        if (value != null) {
+            successCount++
+        } else {
+            failCount++
+        }
+        value
     }
+    
+    println("   🔬 [SDK] valueList resultado: ✅ $successCount exitosos, ❌ $failCount fallidos")
+    return result
 }
 
 /**

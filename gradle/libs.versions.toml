@@ -1,7 +1,7 @@
 [versions]
 # Kotlin & Gradle
-kotlin = "2.1.21"
-agp = "8.2.2"
+kotlin = "2.3.0"
+agp = "8.13.2"
 
 # Android SDK
 android-minSdk = "24"

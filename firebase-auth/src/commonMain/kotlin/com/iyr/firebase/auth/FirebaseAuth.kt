@@ -63,6 +63,28 @@ expect class FirebaseAuth {
     
     // Emulator
     fun useEmulator(host: String, port: Int)
+    
+    // Custom Claims
+    /**
+     * Obtiene los Custom Claims del usuario actual desde el ID Token
+     * 
+     * Los Custom Claims son metadata adicional asignada a usuarios via Firebase Admin SDK
+     * o Cloud Functions. Útil para roles, permisos, company_id, etc.
+     * 
+     * @param forceRefresh Si true, fuerza un refresh del token desde el servidor.
+     *                     Si false, usa el token cacheado si existe.
+     * @return Map con los custom claims o null si no hay usuario autenticado
+     * 
+     * Ejemplo de uso:
+     * ```kotlin
+     * val claims = firebaseAuth.getCustomClaims(forceRefresh = false)
+     * val companyId = claims?.get("company_id") as? String
+     * val roles = claims?.get("roles") as? List<String>
+     * ```
+     * 
+     * @see <a href="https://firebase.google.com/docs/auth/admin/custom-claims">Firebase Custom Claims</a>
+     */
+    suspend fun getCustomClaims(forceRefresh: Boolean = false): Map<String, Any>?
 }
 
 /**
@@ -78,4 +100,9 @@ expect interface AuthStateListener {
 expect interface IdTokenListener {
     fun onIdTokenChanged(auth: FirebaseAuth)
 }
+
+
+
+
+
 

@@ -122,6 +122,12 @@ actual class FirebaseAuth internal constructor(private val jsAuth: dynamic) {
     
     actual suspend fun updateCurrentUser(user: FirebaseUser) { AuthModule.updateCurrentUser(jsAuth, user.jsUser).await<dynamic>() }
     actual fun useEmulator(host: String, port: Int) { AuthModule.connectAuthEmulator(jsAuth, "http://$host:$port") }
+    
+    actual suspend fun getCustomClaims(forceRefresh: Boolean): Map<String, Any>? {
+        val user = jsAuth.currentUser ?: return null
+        val tokenResult = AuthModule.getIdTokenResult(user, forceRefresh).await<dynamic>()
+        return tokenResult.claims.unsafeCast<Map<String, Any>>()
+    }
 }
 
 actual interface AuthStateListener { actual fun onAuthStateChanged(auth: FirebaseAuth) }

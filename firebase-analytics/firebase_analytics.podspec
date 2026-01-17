@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'firebase_analytics'
-    spec.version                  = '1.1.0'
+    spec.version                  = '1.0.0'
     spec.homepage                 = 'https://github.com/iyr/firebase-kmp-sdk'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''
@@ -10,6 +10,9 @@ Pod::Spec.new do |spec|
     spec.libraries                = 'c++'
     spec.ios.deployment_target    = '15.0'
     spec.dependency 'FirebaseAnalytics', '~> 10.29'
+    spec.dependency 'FirebaseInstallations', '~> 10.29'
+    spec.dependency 'GoogleUtilities', '~> 7.12'
+    spec.dependency 'nanopb', '~> 2.30910'
                 
     if !Dir.exist?('build/cocoapods/framework/firebase_analytics.framework') || Dir.empty?('build/cocoapods/framework/firebase_analytics.framework')
         raise "

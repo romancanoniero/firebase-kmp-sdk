@@ -64,3 +64,8 @@ kill $EMULATOR_PID 2>/dev/null || true
 echo ""
 echo "🎉 All done!"
 
+
+
+
+
+
